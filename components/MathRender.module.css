@@ -1,0 +1,28 @@
+.cursor {
+    border-left: 1px solid #007bff;
+    /* Using a blue color for visibility */
+    margin-left: -1px;
+    margin-right: 0px;
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    width: 0;
+    height: 1.2em;
+    vertical-align: baseline;
+}
+
+.blink {
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        border-left-color: #007bff;
+    }
+
+    50% {
+        border-left-color: transparent;
+    }
+}
