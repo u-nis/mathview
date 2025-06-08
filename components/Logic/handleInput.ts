@@ -1,15 +1,13 @@
 import { Cursor } from '../Types'
 import { logNodeTree } from './nodeUtils'
-import { insertSymbol } from './edit'
+import { insertFraction, insertSymbol } from './edit'
 import { moveLeft, moveRight, moveUp, moveDown } from './navigation'
 
 export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: Cursor) => void) => {
-    console.log('Input:', input)
     logNodeTree(cursor.root)
 
     // Handle arrow keys
     if (input === 'ArrowLeft') {
-
         moveLeft(cursor, setCursor)
         return
     }
@@ -32,7 +30,8 @@ export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: C
         // Force a re-render by creating a new cursor object
         setCursor({ ...cursor })
     } else if (input === '/') {
-        console.log('Division operator')
+        insertFraction(cursor)
+        setCursor({ ...cursor })
     } else if (input === '^') {
         console.log('Exponent operator')
     }
