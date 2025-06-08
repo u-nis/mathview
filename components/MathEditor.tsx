@@ -1,13 +1,12 @@
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
 import MathInput from './MathInput'
-import MathRender from './MathRender'
+import MathRender from './Render/MathRender'
 import { Row, Cursor } from './Types'
 
 let id = 1;
 export const createId = () => {
     id++;
-    console.log('id', id)
     return id.toString();
 }
 
@@ -24,7 +23,6 @@ const MathEditor = () => {
             children: [],
             parent: null
         }
-        console.log('rootid', root.id)
         rootRef.current = root
 
         const newCursor: Cursor = {
@@ -33,7 +31,6 @@ const MathEditor = () => {
             parent: root,
             root: root
         }
-        console.log('cursorid', newCursor.id)
         setCursor(newCursor)
         root.children = [newCursor]
     }, [])

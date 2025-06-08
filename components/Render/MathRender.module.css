@@ -1,0 +1,40 @@
+.cursor {
+    display: inline-block;
+    border-left: 1px solid currentColor;
+    margin-left: -1px;
+    position: relative;
+    z-index: 1;
+    padding: 0;
+}
+
+.cursor.blink {
+    visibility: hidden;
+}
+
+.fraction {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 0.1em;
+    text-align: center;
+}
+
+.numerator {
+    display: block;
+    padding: 0 0.1em;
+    font-size: 90%;
+}
+
+.denominator {
+    display: block;
+    padding: 0 0.1em;
+    border-top: 1px solid;
+    font-size: 90%;
+}
+
+/* This is a little hack to vertically center the fraction with the rest of the text */
+.fraction::before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+} 

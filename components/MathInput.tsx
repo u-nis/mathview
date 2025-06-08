@@ -1,4 +1,4 @@
-import React, { useEffect, forwardRef } from 'react'
+import React, { forwardRef } from 'react'
 import { Cursor } from './Types'
 import { handleInput } from './Logic/handleInput'
 
@@ -8,25 +8,17 @@ interface MathInputProps {
 }
 
 const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCursor }, ref) => {
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key.startsWith('Arrow')) {
-                e.preventDefault()
-                e.stopPropagation()
-                console.log('key', e.key)
-                handleInput(e.key, cursor, setCursor)
-            } else if (e.key.length === 1) {
-                console.log('key', e.key)
-                handleInput(e.key, cursor, setCursor)
-            }
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key.startsWith('Arrow')) {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('key', e.key)
+            handleInput(e.key, cursor, setCursor)
+        } else if (e.key.length === 1) {
+            console.log('key', e.key)
+            handleInput(e.key, cursor, setCursor)
         }
-
-        const element = ref as React.RefObject<HTMLDivElement>
-        if (element?.current) {
-            element.current.addEventListener('keydown', handleKeyDown)
-            return () => element.current?.removeEventListener('keydown', handleKeyDown)
-        }
-    }, [cursor, ref, setCursor])
+    }
 
     return (
         <div
@@ -35,6 +27,7 @@ const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCurso
             tabIndex={0}
             role="textbox"
             aria-label="Math input"
+            onKeyDown={handleKeyDown}
         />
     )
 })
