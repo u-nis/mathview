@@ -32,9 +32,3 @@
 }
 
 /* This is a little hack to vertically center the fraction with the rest of the text */
-.fraction::before {
-    content: '';
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-} 

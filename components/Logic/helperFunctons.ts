@@ -1,12 +1,12 @@
 import { Cursor, Node, Row } from '../Types'
 
-export const getIndex = (cursor: Cursor): number => {
-    if (!cursor.parent) {
+export const getIndex = (node: Node): number => {
+    if (!node.parent) {
         return 0
     }
 
     // Find the index of the cursor in its parent's children
-    return cursor.parent.children.findIndex(child => child.id === cursor.id)
+    return node.parent.children.findIndex(child => child.id === node.id)
 }
 
 export const insertNode = (node: Node, cursor: Cursor) => {
