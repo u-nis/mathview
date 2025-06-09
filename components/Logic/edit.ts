@@ -47,11 +47,14 @@ export const insertFraction = (cursor: Cursor) => {
     fractionNode.numerator = numeratorNode
     fractionNode.denominator = denominatorNode
 
+    const cursorIndex = getIndex(cursor)
+    let leftIndex = cursorIndex - 1
+
     // Move all consecutive number nodes to the left of the cursor into the numerator node
-    if (cursor.parent) {
+
+    const left = getAdjacentNodes(cursor).left;
+    if (left.type === 'symbol'){
         const siblings = cursor.parent.children
-        const cursorIndex = getIndex(cursor)
-        let leftIndex = cursorIndex - 1
 
         // Collect indices of consecutive number nodes to the left
         const numbers: Symbol[] = []
@@ -73,8 +76,16 @@ export const insertFraction = (cursor: Cursor) => {
         }
 
     moveNode(fractionNode, cursor.parent, cursorIndex)
-    moveNode(cursor, denominatorNode, denominatorNode.children.length)
+    moveNode(cursor, denominatorNode, 0)
     }
+
+    else if (left.type === 'fraction'){
+        console.log('Left is a fraction')
+    moveNode(fractionNode, cursor.parent, cursorIndex)
+        moveNode(left,numeratorNode,0)
+        moveNode(cursor, denominatorNode, 0)
+    }
+
 }
 
 // Handle exponent insertion
