@@ -1,14 +1,28 @@
-.cursor {
-    display: inline-block;
-    border-left: 1px solid currentColor;
-    margin-left: -1px;
-    position: relative;
-    z-index: 1;
-    padding: 0;
+.container {
+    padding: 0.5rem;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    font-family: 'Times New Roman', serif;
+    font-size: 1.2rem;
 }
 
-.cursor.blink {
-    visibility: hidden;
+.symbol {
+    color: black;
+    font-family: 'Times New Roman', serif;
+    font-size: 1.5rem;
+}
+
+.symbolWithSpace {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+.row {
+    display: inline-flex;
+    align-items: center;
 }
 
 .fraction {
@@ -27,8 +41,21 @@
 .denominator {
     display: block;
     padding: 0 0.1em;
-    border-top: 1px solid;
+    border-top: 1px solid black;
     font-size: 90%;
 }
 
-/* This is a little hack to vertically center the fraction with the rest of the text */
+.cursor {
+    display: inline-block;
+    border-left: 1px solid black;
+    margin-left: -1px;
+    position: relative;
+    z-index: 1;
+    padding: 0;
+    height: 1.2em;
+}
+
+.cursor.blink {
+    visibility: hidden;
+    height: 1.2em;
+}

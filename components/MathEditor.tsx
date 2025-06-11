@@ -47,7 +47,7 @@ const MathEditor = () => {
     return (
         <div className="max-w-2xl mx-auto">
             <div
-                className="min-h-[100px] border-2 border-gray-300 rounded-lg focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text select-none"
+                className="border-2 border-black min-h-16 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text select-none"
                 onMouseDown={handleContainerMouseDown}
             >
                 <MathRender cursor={cursor} />

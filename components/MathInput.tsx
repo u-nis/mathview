@@ -23,7 +23,7 @@ const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCurso
     return (
         <div
             ref={ref}
-            className="w-full h-12 outline-none"
+            className="w-full h-full outline-none"
             tabIndex={0}
             role="textbox"
             aria-label="Math input"
