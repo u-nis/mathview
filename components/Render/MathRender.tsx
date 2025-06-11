@@ -18,14 +18,18 @@ const renderNode = (node: Node, isCursorBlinking: boolean): React.ReactNode => {
             const isNumber = /^[0-9]$/.test(symbol.value);
             const needsSpace = !isNumber; // Add space if it's not a number
 
-            return <span className={`text-xl ${needsSpace ? 'ml-1 mr-1' : ''}`} style={{ fontFamily: "'Times New Roman', serif" }}>{displayValue}</span>
+            return <span className={`${styles.symbol} ${needsSpace ? styles.symbolWithSpace : ''}`}>{displayValue}</span>
         case 'row':
             const row = node as Row;
-            return row.children.map((child) => (
-                <React.Fragment key={child.id}>
-                    {renderNode(child, isCursorBlinking)}
-                </React.Fragment>
-            ))
+            return (
+                <span className={styles.row}>
+                    {row.children.map((child) => (
+                        <React.Fragment key={child.id}>
+                            {renderNode(child, isCursorBlinking)}
+                        </React.Fragment>
+                    ))}
+                </span>
+            )
         case 'fraction':
             const fraction = node as Fraction;
             return (
@@ -53,7 +57,7 @@ const MathRender = ({ cursor }: MathRenderProps) => {
     }, []);
 
     return (
-        <div className="p-3 border border-gray-200 rounded flex items-center" style={{ fontFamily: "'Times New Roman', serif" }}>
+        <div className={styles.container}>
             {renderNode(cursor.root, isCursorBlinking)}
         </div>
     )
