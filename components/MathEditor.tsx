@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import MathInput from './MathInput'
 import MathRender from './Render/MathRender'
 import { Row, Cursor } from './Types'
+import styles from './MathEditor.module.css'
 
 let id = 1;
 export const createId = () => {
@@ -45,9 +46,9 @@ const MathEditor = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className={styles.wrapper}>
             <div
-                className="border-2 border-black min-h-16 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 cursor-text select-none"
+                className={styles.container}
                 onMouseDown={handleContainerMouseDown}
             >
                 <MathRender cursor={cursor} />
