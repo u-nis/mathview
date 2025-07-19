@@ -92,6 +92,28 @@
   font-size: 70%;
 }
 
+/* Exponent styling - exact MathQuill implementation */
+.exponent {
+  text-align: left;
+  font-size: 90%;
+  vertical-align: 0.5em;
+  display: inline-block;
+}
+
+.exponent .exponentContent {
+  display: block;
+}
+
+/* Special styles for fractions within exponents */
+.exponent .fraction {
+  font-size: 70%;
+}
+
+/* Binary operators within exponents get reduced padding */
+.exponent .binaryOperator {
+  padding: 0 0.1em;
+}
+
 /* Non-leaf elements (containers) */
 .nonLeaf {
   display: inline-block;

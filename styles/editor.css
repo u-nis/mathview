@@ -1,0 +1,15 @@
+
+.editor-container{
+    width: 50%;
+    margin: 0 auto;
+    background-color: white;
+    outline: 1px solid #ccc;
+    color: black;
+    min-height: 800px;
+}
+.toolbar{
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    outline: 1px solid #ccc;
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Cursor, Node, Symbol, Row, Fraction } from '../Types'
+import { Cursor, Node, Symbol, Row, Fraction, Exponent } from '../Types'
 import styles from './MathRender.module.css'
 
 interface MathRenderProps {
@@ -70,6 +70,25 @@ const renderNode = (node: Node, isCursorBlinking: boolean, depth: number = 0): R
                     </span>
                     {/* Zero-width space for positioning, exactly as MathQuill does */}
                     <span style={{ display: 'inline-block', width: 0 }}>{U_ZERO_WIDTH_SPACE}</span>
+                </span>
+            );
+
+        case 'exponent':
+            const exponent = node as Exponent;
+            // MathQuill's exact exponent rendering approach
+            const expClasses = [
+                styles.exponent,
+                styles.nonLeaf
+            ].filter(Boolean).join(' ');
+            
+            return (
+                <span key={exponent.id} className={expClasses}>
+                    {renderNode(exponent.base, isCursorBlinking, depth)}
+                    <span className={styles.exponentContent}>
+                        {renderNode(exponent.exponent, isCursorBlinking, depth + 1)}
+                        {/* Add zero-width space if exponent is empty */}
+                        {!exponent.exponent.children || exponent.exponent.children.length === 0 ? U_ZERO_WIDTH_SPACE : ''}
+                    </span>
                 </span>
             );
             
