@@ -1,4 +1,4 @@
-import { Cursor, Fraction, Row, Symbol } from '../Types'
+import { Cursor, Exponent, Fraction, Row, Symbol } from '../Types'
 import { getAdjacentNodes, getIndex, insertNode, moveNode } from './helperFunctons'
 import { createId } from '../MathEditor'
 
@@ -17,6 +17,31 @@ export const insertSymbol = (input: string, cursor: Cursor) => {
     insertNode(symbolNode, cursor)
 }
 
+
+export const insertExponent = (input: string, cursor: Cursor) => {
+    const baseNode: Row = {
+        type: 'row',
+        children: [],
+        parent: cursor.parent,
+        id: createId()
+    }
+    const raisedNode: Row = {
+        type: 'row',
+        children: [],
+        parent: cursor.parent,
+        id: createId()
+    }
+    const exponentNode: Exponent = {
+        type: 'exponent',
+        base: baseNode,
+        raised: raisedNode,
+        parent: cursor.parent,
+        id: createId()
+    }
+    moveNode(getAdjacentNodes(cursor).left,baseNode,0)
+    insertNode(exponentNode,cursor)
+    moveNode(cursor,raisedNode,1)
+}
 
 
 // Handle fraction insertion
@@ -88,11 +113,7 @@ export const insertFraction = (cursor: Cursor) => {
 
 }
 
-// Handle exponent insertion
-export const insertExponent = (cursor: Cursor) => {
-    // TODO: Implement exponent insertion logic
-    console.log('Inserting exponent')
-}
+
 
 // Handle deletion
 export const deleteAtCursor = (cursor: Cursor) => {

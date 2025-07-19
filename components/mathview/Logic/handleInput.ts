@@ -1,6 +1,6 @@
 import { Cursor } from '../Types'
 import { logNodeTree } from './nodeUtils'
-import { insertFraction, insertSymbol } from './edit'
+import { insertExponent, insertFraction, insertSymbol } from './edit'
 import { moveLeft, moveRight, moveUp, moveDown } from './navigation'
 
 export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: Cursor) => void) => {
@@ -33,6 +33,7 @@ export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: C
         insertFraction(cursor)
         setCursor({ ...cursor })
     } else if (input === '^') {
-        console.log('Exponent operator')
+        insertExponent(input, cursor)
+        setCursor({ ...cursor })
     }
 }

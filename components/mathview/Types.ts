@@ -1,6 +1,6 @@
 export type base = {
     id: string;
-    type: "symbol" | "row" | "fraction" | "cursor";
+    type: "symbol" | "row" | "fraction" | "cursor" | "exponent";
 };
 
 export interface Symbol extends base {
@@ -22,10 +22,17 @@ export interface Fraction extends base {
     parent: Row;
 };
 
+export interface Exponent extends base {
+    type: "exponent";
+    base: Row;
+    raised: Row;
+    parent: Row;
+};
+
 export interface Cursor extends base {
     type: "cursor";
     parent: Row;
     root: Node;
 };
 
-export type Node = Symbol | Row | Fraction | Cursor;
+export type Node = Symbol | Row | Fraction | Exponent | Cursor;
