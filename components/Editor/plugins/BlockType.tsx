@@ -3,7 +3,7 @@ import { $getSelection, $isRangeSelection } from "lexical";
 import { $createHeadingNode } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
-import { dropdownStyle } from "../styles";
+import "../styles.css";
 
 export default function TextFormat() {
   const [editor] = useLexicalComposerContext();
@@ -46,7 +46,7 @@ export default function TextFormat() {
     <div style={{ position: 'relative' }} ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        style={dropdownStyle}
+        className="dropdown"
       >
         {selectedFormat}
         <span style={{ fontSize: '12px' }}>▼</span>
