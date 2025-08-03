@@ -1,7 +1,7 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListType } from "@lexical/list";
 import { useState, useRef, useEffect } from "react";
-import { dropdownStyle } from "../styles";
+import "../styles.css";
 
 export default function List() {
   const [editor] = useLexicalComposerContext();
@@ -29,12 +29,12 @@ export default function List() {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND,undefined)
     }
   };
-
+  
   return (
     <div style={{ position: 'relative' }} ref={dropdownRef}>
         <button
           onClick={() => setIsListDropdownOpen(!isListDropdownOpen)}
-          style={dropdownStyle}
+          className="dropdown"
         >
           {selectedList}
           <span style={{ fontSize: '12px' }}>▼</span>

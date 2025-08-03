@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
 import MathInput from './MathInput'
-import MathRender from './mathview/Render/MathRender'
+import MathRender from '@/components/mathview/Render/MathRender'
 import { Row, Cursor } from './Types'
 import styles from './MathEditor.module.css'
 
