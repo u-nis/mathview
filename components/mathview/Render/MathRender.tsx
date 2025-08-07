@@ -1,168 +1,145 @@
-import React, { useState, useEffect } from 'react'
-import { Cursor, Node, Symbol, Row, Fraction, Exponent, MathViewConfig } from '../Types'
+"use client"
+import React, { useRef } from 'react'
 import styles from './MathRender.module.css'
+import type { Cursor, Exponent, Fraction, MathViewConfig, Node, Row, Symbol } from '../Types'
 
 interface MathRenderProps {
-    cursor: Cursor
-    config?: MathViewConfig
-    showCursor?: boolean
+  cursor: Cursor | null
+  config: MathViewConfig
+  showCursor: boolean
 }
 
-// Zero-width space character used by MathQuill
-const U_ZERO_WIDTH_SPACE = '\u200B';
+// We prefer relative scaling with em for compounding (fractions/exponents)
 
-const renderNode = (node: Node, isCursorBlinking: boolean, config: MathViewConfig, showCursor: boolean, depth: number = 0): React.ReactNode => {
-    switch (node.type) {
-        case 'symbol':
-            const symbol = node as Symbol;
-            // Convert symbols to proper mathematical ones (matching MathQuill's approach)
-            let displayValue = symbol.value;
-            if (symbol.value === '*') displayValue = '·';
-            if (symbol.value === '-') displayValue = '−'; // Proper minus sign (U+2212)
+const isRow = (n: Node): n is Row => n.type === 'row'
+const isSymbol = (n: Node): n is Symbol => n.type === 'symbol'
+const isFraction = (n: Node): n is Fraction => n.type === 'fraction'
+const isExponent = (n: Node): n is Exponent => n.type === 'exponent'
 
-            const isNumber = /^[0-9]$/.test(symbol.value);
-            const isOperator = /^[+\-*/=<>]$/.test(symbol.value);
-            const isBinaryOperator = isOperator && !isNumber;
+const isDigitSymbol = (n: Node | null | undefined): boolean => {
+  return !!(n && n.type === 'symbol' && /^[0-9]$/.test((n as Symbol).value))
+}
 
-            // Apply MathQuill-style classes
-            const symbolClasses = [
-                styles.symbol,
-                isBinaryOperator ? styles.binaryOperator : ''
-            ].filter(Boolean).join(' ');
+function RenderRow({ row, depth, config, showCursor }: { row: Row; depth: number; config: MathViewConfig; showCursor: boolean }) {
+  const children = row.children
 
-            return (
-                <span 
-                    key={symbol.id}
-                    className={symbolClasses}
-                    data-symbol={symbol.value}
-                    style={{
-                        color: config.fontColor
-                    }}
-                >
-                    {displayValue}
-                </span>
-            );
-            
-        case 'row':
-            const row = node as Row;
-            return (
-                <span key={row.id} className={styles.row}>
-                    {row.children.map((child) => 
-                        renderNode(child, isCursorBlinking, config, showCursor, depth)
-                    )}
-                </span>
-            );
-            
-        case 'fraction':
-            const fraction = node as Fraction;
-            // Apply MathQuill-style nested fraction handling with proper font-size cascade
-            const fractionClasses = [
-                styles.fraction,
-                styles.nonLeaf
-            ].filter(Boolean).join(' ');
-            
-            return (
-                <span key={fraction.id} className={fractionClasses}>
-                    <span className={styles.numerator}>
-                        {renderNode(fraction.numerator, isCursorBlinking, config, showCursor, depth + 1)}
-                        {/* Add zero-width space if numerator is empty, like MathQuill */}
-                        {!fraction.numerator.children || fraction.numerator.children.length === 0 ? U_ZERO_WIDTH_SPACE : ''}
-                    </span>
-                    <span className={styles.denominator}>
-                        {renderNode(fraction.denominator, isCursorBlinking, config, showCursor, depth + 1)}
-                        {/* Add zero-width space if denominator is empty, like MathQuill */}
-                        {!fraction.denominator.children || fraction.denominator.children.length === 0 ? U_ZERO_WIDTH_SPACE : ''}
-                    </span>
-                    {/* Zero-width space for positioning, exactly as MathQuill does */}
-                    <span style={{ display: 'inline-block', width: 0 }}>{U_ZERO_WIDTH_SPACE}</span>
-                </span>
-            );
+  const hasLeadingCursor = children[0]?.type === 'cursor'
 
-        case 'exponent':
-            const exponent = node as Exponent;
-            // MathQuill's exact exponent rendering approach
-            const expClasses = [
-                styles.exponent,
-                styles.nonLeaf
-            ].filter(Boolean).join(' ');
-            
-            return (
-                <span key={exponent.id} className={expClasses}>
-                    {renderNode(exponent.base, isCursorBlinking, config, showCursor, depth)}
-                    <span className={styles.exponentContent}>
-                        {renderNode(exponent.raised, isCursorBlinking, config, showCursor, depth + 1)}
-                        {/* Add zero-width space if exponent is empty */}
-                        {!exponent.raised.children || exponent.raised.children.length === 0 ? U_ZERO_WIDTH_SPACE : ''}
-                    </span>
-                </span>
-            );
-            
-        case 'cursor':
-            // Only render cursor if showCursor is true
-            if (!showCursor) {
-                return null;
-            }
-            
-            // Critical: The cursor uses MathQuill's exact positioning approach
-            // - border-left: 1px solid creates the visual cursor
-            // - margin-left: -1px prevents it from displacing other content
-            // - position: relative with z-index: 1 ensures proper layering
-            // - The zero-width space ensures the cursor has content for proper positioning
-            return (
-                <span 
-                    key="cursor"
-                    className={`${styles.cursor} ${isCursorBlinking ? styles.blink : ''}`}
-                    style={{
-                        borderLeftColor: config.cursorColor,
-                    }}
-                >
-                    {U_ZERO_WIDTH_SPACE}
-                </span>
-            );
-            
-        default:
-            return null;
+  const elements = [] as React.ReactNode[]
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (child.type === 'cursor') continue
+
+    // Find previous non-cursor node for spacing logic
+    let prevNonCursor: Node | null = null
+    for (let j = i - 1; j >= 0; j--) {
+      if (children[j].type !== 'cursor') {
+        prevNonCursor = children[j]
+        break
+      }
     }
+
+    // Default: add spacing except digit-digit adjacency
+    let marginLeft = 0
+    const isCurrentDigit = isDigitSymbol(child)
+    const isPrevDigit = isDigitSymbol(prevNonCursor)
+
+    if (prevNonCursor) {
+      if (!(isPrevDigit && isCurrentDigit)) {
+        marginLeft = 0.22
+      }
+    }
+
+    const nextIsCursor = children[i + 1]?.type === 'cursor'
+
+    elements.push(
+      <span key={child.id} className={styles.item} style={{ marginLeft: marginLeft ? `${marginLeft}em` : undefined }}>
+        <RenderNode node={child} depth={depth} config={config} showCursor={showCursor} />
+        {showCursor && nextIsCursor && (
+          <span className={styles.caretAbs} style={{ backgroundColor: config.cursorColor }} />
+        )}
+      </span>
+    )
+  }
+
+  return (
+    <span className={styles.row}>
+      <span className={styles.rowInner}>
+        {showCursor && hasLeadingCursor && (
+          <span className={styles.caretStart} style={{ backgroundColor: config.cursorColor }} />
+        )}
+        {elements}
+      </span>
+    </span>
+  )
 }
 
-const MathRender = ({ cursor, config, showCursor = true }: MathRenderProps) => {
-    const [isCursorBlinking, setIsCursorBlinking] = useState(true);
-    const defaultConfig: MathViewConfig = {
-        fontFamily: 'Times New Roman, serif',
-        fontSize: '16px',
-        fontColor: '#000000',
-        backgroundColor: 'transparent',
-        cursorColor: '#000000',
-        ...config
-    };
+function RenderFraction({ frac, depth, config, showCursor }: { frac: Fraction; depth: number; config: MathViewConfig; showCursor: boolean }) {
+  // Scale fraction to 85% of parent size; nesting compounds naturally
+  return (
+    <span className={styles.fraction} style={{ fontSize: '0.85em' }}>
+      <span className={styles.numerator}>
+        <RenderRow row={frac.numerator} depth={depth + 1} config={config} showCursor={showCursor} />
+      </span>
+      <span className={styles.denominator}>
+        <RenderRow row={frac.denominator} depth={depth + 1} config={config} showCursor={showCursor} />
+      </span>
+    </span>
+  )
+}
 
-    useEffect(() => {
-        // MathQuill uses 500ms intervals for cursor blinking
-        const interval = setInterval(() => {
-            setIsCursorBlinking(prev => !prev);
-        }, 500);
+function RenderExponent({ exp, depth, config, showCursor }: { exp: Exponent; depth: number; config: MathViewConfig; showCursor: boolean }) {
+  // Base inherits; raised reduced to 85%
+  return (
+    <span className={styles.exponent}>
+      <span className={styles.expBase}>
+        <RenderRow row={exp.base} depth={depth} config={config} showCursor={showCursor} />
+      </span>
+      <span className={styles.expRaised} style={{ fontSize: '0.85em' }}>
+        <RenderRow row={exp.raised} depth={depth + 1} config={config} showCursor={showCursor} />
+      </span>
+    </span>
+  )
+}
 
-        return () => clearInterval(interval);
-    }, []);
-
-    // Determine if the root block is empty (excluding cursor)
-    const nonCursorChildren = cursor.root.type === 'row' ? 
-        cursor.root.children.filter(child => child.type !== 'cursor') : [];
-    const isEmpty = cursor.root.type === 'row' && nonCursorChildren.length === 0;
-    
-    // Apply MathQuill-style root classes
-    const rootClasses = [
-        styles.rootBlock,
-        isEmpty ? styles.empty : ''
-    ].filter(Boolean).join(' ');
-
+function RenderNode({ node, depth, config, showCursor }: { node: Node; depth: number; config: MathViewConfig; showCursor: boolean }) {
+  if (node.type === 'cursor') {
+    return null
+  }
+  if (isSymbol(node)) {
+    const value = node.value
+    const isOperator = /^[+\-*/=]$/.test(value)
+    const isDigit = /^[0-9]$/.test(value)
+    const className = `${styles.symbol}${isOperator ? ' ' + styles.operator : ''}${isDigit ? ' ' + styles.digit : ''}`
     return (
-        <span className={rootClasses} aria-hidden="true">
-            {renderNode(cursor.root, isCursorBlinking, defaultConfig, showCursor, 0)}
-            {/* MathQuill's approach: always ensure non-zero width even when empty */}
-            {isEmpty ? U_ZERO_WIDTH_SPACE : ''}
-        </span>
-    );
+      <span className={className}>
+        {value}
+      </span>
+    )
+  }
+  if (isRow(node)) {
+    return <RenderRow row={node} depth={depth} config={config} showCursor={showCursor} />
+  }
+  if (isFraction(node)) {
+    return <RenderFraction frac={node} depth={depth} config={config} showCursor={showCursor} />
+  }
+  if (isExponent(node)) {
+    return <RenderExponent exp={node} depth={depth} config={config} showCursor={showCursor} />
+  }
+  return null
+}
+
+const MathRender: React.FC<MathRenderProps> = ({ cursor, config, showCursor }) => {
+  if (!cursor || !cursor.root || cursor.root.type !== 'row') return null
+  const rootRow = cursor.root as Row
+
+  return (
+    <span className={styles.root}>
+      <RenderRow row={rootRow} depth={0} config={config} showCursor={showCursor} />
+    </span>
+  )
 }
 
 export default MathRender
+
+

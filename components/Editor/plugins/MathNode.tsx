@@ -27,6 +27,11 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
     super(key);
   }
 
+  // Ensure this node is treated as inline by Lexical
+  isInline(): boolean {
+    return true;
+  }
+
   exportJSON(): SerializedMathNode {
     return {
       ...super.exportJSON(),
@@ -37,7 +42,9 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
     const element = document.createElement('div');
     element.className = 'math-node-container';
     element.style.display = 'inline-block';
+    // Align with surrounding text baseline and inherit line-height
     element.style.verticalAlign = 'baseline';
+    element.style.lineHeight = 'inherit';
     return element;
   }
 
@@ -66,6 +73,41 @@ function MathNodeComponent({ nodeKey }: { nodeKey: string }) {
       }
     }
   }, [isSelected]);
+
+           // Effect to listen for math navigation events
+         useEffect(() => {
+           const handleMathNavigation = (event: CustomEvent) => {
+             const detail = (event as CustomEvent<{ nodeKey?: string }>).detail;
+             if (!detail || detail.nodeKey !== nodeKey) return;
+
+             const isLeft = event.type === 'math-navigate-left';
+             const isRight = event.type === 'math-navigate-right';
+             if (!isLeft && !isRight) return;
+
+             editor.update(() => {
+               const node = $getNodeByKey(nodeKey);
+               if (!node) return;
+               const parent = node.getParent();
+               if (!parent) return;
+
+               const indexWithinParent = node.getIndexWithinParent();
+               const offset = isLeft ? indexWithinParent : indexWithinParent + 1;
+
+               const range = $createRangeSelection();
+               range.anchor.set(parent.getKey(), offset, 'element');
+               range.focus.set(parent.getKey(), offset, 'element');
+               $setSelection(range);
+             });
+           };
+
+           document.addEventListener('math-navigate-left', handleMathNavigation as EventListener);
+           document.addEventListener('math-navigate-right', handleMathNavigation as EventListener);
+
+           return () => {
+             document.removeEventListener('math-navigate-left', handleMathNavigation as EventListener);
+             document.removeEventListener('math-navigate-right', handleMathNavigation as EventListener);
+           };
+         }, [editor, nodeKey]);
 
   // Effect to insert the detected math string when the component mounts
   useEffect(() => {
@@ -104,11 +146,10 @@ function MathNodeComponent({ nodeKey }: { nodeKey: string }) {
 
   return (
     <div 
-      style={{ border: '1px solid red', padding: '4px', margin: '2px' }} 
       data-lexical-math-editor
       onClick={handleClick}
     >
-      <MathEditor ref={mathEditorRef} />
+      <MathEditor ref={mathEditorRef} nodeKey={nodeKey} />
     </div>
   );
 }

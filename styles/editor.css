@@ -13,3 +13,10 @@
     background-color: #f0f0f0;
     outline: 1px solid #ccc;
 }
+
+/* Ensure Lexical content uses Times New Roman at 15px */
+.editor-input {
+    font-family: 'Times New Roman', serif;
+    font-size: 15px;
+    line-height: 1.4;
+}

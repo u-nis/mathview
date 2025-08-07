@@ -1,39 +1,69 @@
-/* Simplified MathQuill-equivalent styles for mathematical expression rendering */
-
-/* Symbol styling */
-.symbol {
-  display: inline;
-  font-family: Symbola, 'Times New Roman', serif;
-  line-height: 0.9;
-  font-size: 100%; /* Base size relative to container */
-}
-
-/* Binary operator spacing */
-.binaryOperator {
-  padding: 0 0.2em;
+/* Inspired by MathQuill inline math layout */
+.root {
   display: inline-block;
+  vertical-align: baseline;
+  line-height: inherit; /* match Lexical text node line-height */
 }
 
-/* Cursor styling - exact MathQuill implementation */
-.cursor {
+.row {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.rowInner {
+  display: inline-flex;
+  align-items: baseline;
+  position: relative;
+}
+
+.item {
+  display: inline-flex;
+  align-items: baseline;
+  position: relative;
+}
+
+.caretAnchor {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.symbol {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.digit {
+  letter-spacing: 0; /* tight for digits */
+}
+
+.operator {
+  margin: 0 0.16em; /* MQ-like operator spacing */
+}
+
+
+/* MathQuill-style cursor with zero-width space */
+.caretPlaceholder {
+  display: inline;
+  font-size: 0;
+  color: transparent;
   border-left: 1px solid currentColor;
   margin-left: -1px;
-  position: relative;
-  z-index: 1;
+  animation: mq-caret-blink 1s step-start infinite;
 }
 
-.cursor.blink {
-  visibility: hidden;
+@keyframes mq-caret-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
 }
 
-/* Fraction styling */
+/* Fractions */
 .fraction {
-  text-align: center;
-  
-  padding: 0 0.2em;
   display: inline-block;
-  vertical-align: -0.55em;
-  font-size: 90%; /* 90% of the base font size */
+  text-align: center;
+  /* visually nudge up without affecting line-box */
+  transform: translateY(-0.12em);
+  padding: 0 0.2em; /* space around fraction */
 }
 
 .numerator,
@@ -42,40 +72,56 @@
 }
 
 .denominator {
-  border-top: 1px solid;
-  float: right;
-  width: 100%;
-  padding: 0em;
+  position: relative;
 }
 
-/* Exponent styling - exact MathQuill implementation */
+.denominator::before {
+  content: "";
+  position: absolute;
+  top: -0.08em; /* fine-tuned for balance */
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+}
+
+
+/* Exponents */
 .exponent {
-  text-align: left;
-  font-size: 90%; /* 90% of the base font size */
-  vertical-align: 0.5em;
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
 }
 
-/* Root block styling */
-.rootBlock {
-  display: inline;
-  line-height: 1.2;
+.expBase {
+  display: inline-flex;
+  align-items: baseline;
 }
 
-.rootBlock.empty {
-  min-width: 1em;
+.expRaised {
+  display: inline-flex;
+  align-items: baseline;
+  margin-left: 0.05em;
+  transform: translateY(-0.35em);
 }
 
-/* Non-leaf elements (fractions, exponents) */
-.nonLeaf {
-  display: inline-block;
+/* absolutely positioned caret inserted inside item wrappers */
+.caretAbs {
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  animation: mq-caret-blink 1s step-start infinite;
 }
 
-/* Exponent content */
-.exponentContent {
-  display: inline-block;
-  vertical-align: super;
-  font-size: 70%; /* 70% of the base font size */
-  line-height: 1;
+/* leading caret when cursor is first in a row */
+.caretStart {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  animation: mq-caret-blink 1s step-start infinite;
 }
+
 

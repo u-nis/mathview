@@ -1,27 +1,13 @@
 /* MathEditor component styles */
 
 .container {
-  min-height: 2em;
   cursor: text;
   user-select: none;
+  outline: 1px solid red;
   display: inline-block;
   vertical-align: baseline;
-  position: relative;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   width: auto;
-  width: 100px;
   min-width: 100%;
   white-space: nowrap;
   overflow: visible;
 }
-
-.container:focus-within {
-  border-color: #188fff;
-  outline: none;
-}
-
-.wrapper {
-  max-width: none;
-  margin: 0 auto;
-  overflow-x: auto;
-} 
