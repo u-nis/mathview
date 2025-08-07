@@ -15,6 +15,7 @@ export const createId = () => {
 
 interface MathEditorProps {
     config?: MathViewConfig;
+    nodeKey?: string;
 }
 
 // Interface for the MathEditor API
@@ -25,7 +26,7 @@ export interface MathEditorAPI {
     setCursorToEnd: () => void;
 }
 
-const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {} }, ref) => {
+const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {}, nodeKey }, ref) => {
     const rootRef = useRef<Row | null>(null)
     const [cursor, setCursor] = useState<Cursor | null>(null)
     const inputRef = useRef<HTMLDivElement>(null)
@@ -36,7 +37,7 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {} }, 
     // Default configuration
     const defaultConfig: MathViewConfig = {
         fontFamily: 'Times New Roman, serif',
-        fontSize: '16px',
+        fontSize: '15px',
         fontColor: '#000000',
         backgroundColor: 'transparent',
         cursorColor: '#000000',
@@ -47,7 +48,7 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {} }, 
     if (!rootRef.current) {
         console.log('MathEditor initializing...');
         const root: Row = {
-            id: createId(),
+            id: "root",
             type: 'row',
             children: [],
             parent: null
@@ -55,7 +56,7 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {} }, 
         rootRef.current = root
 
         const newCursor: Cursor = {
-            id: createId(),
+            id: "cursor",
             type: 'cursor',
             parent: root,
             root: root
@@ -100,6 +101,9 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {} }, 
 
     const handleFocus = () => {
         setIsFocused(true)
+        if (nodeKey) {
+            (window as any).currentMathNodeKey = nodeKey;
+        }
     }
 
     const handleBlur = () => {

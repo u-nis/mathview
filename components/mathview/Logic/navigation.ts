@@ -16,6 +16,13 @@ export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void) =>
         setCursor({ ...cursor })
         }
     }
+    else if (cursor.parent.id === 'root' && left === null) {
+        // At the leftmost boundary of the root node
+        const event = new CustomEvent('math-navigate-left', {
+            detail: { nodeKey: (window as any).currentMathNodeKey }
+        });
+        document.dispatchEvent(event);
+    }
     else if (cursor.parent.parent.type === 'fraction') {
         const fracindex = getIndex(cursor.parent.parent);
         moveNode(cursor, cursor.parent.parent.parent, fracindex-1);
@@ -37,6 +44,14 @@ export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void) =
         cursor.parent.children.splice(currentIndex, 1)
         setCursor({ ...cursor })
         }
+    }
+     if (cursor.parent.id === 'root' && right === null) {
+        console.log("RIGHT IS NULL");
+        // At the rightmost boundary of the root node
+        const event = new CustomEvent('math-navigate-right', {
+            detail: { nodeKey: (window as any).currentMathNodeKey }
+        });
+        document.dispatchEvent(event);
     }
     else if (cursor.parent.parent.type === 'fraction') { // at the end of the fraction, move to the parent
         const fracindex = getIndex(cursor.parent.parent);
