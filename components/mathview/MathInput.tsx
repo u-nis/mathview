@@ -5,9 +5,11 @@ import { handleInput } from './Logic/handleInput'
 interface MathInputProps {
     cursor: Cursor
     setCursor: (cursor: Cursor) => void
+    onFocus?: () => void
+    onBlur?: () => void
 }
 
-const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCursor }, ref) => {
+const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCursor, onFocus, onBlur }, ref) => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key.startsWith('Arrow')) {
             e.preventDefault()
@@ -28,6 +30,8 @@ const MathInput = forwardRef<HTMLDivElement, MathInputProps>(({ cursor, setCurso
             role="textbox"
             aria-label="Math input"
             onKeyDown={handleKeyDown}
+            onFocus={onFocus}
+            onBlur={onBlur}
         />
     )
 })

@@ -1,19 +1,18 @@
 /* MathEditor component styles */
 
 .container {
-  border: 1px solid #ccc;
   min-height: 2em;
-  padding: 4px 8px;
-  box-sizing: border-box;
   cursor: text;
   user-select: none;
   display: inline-block;
   vertical-align: baseline;
-  background-color: white;
   position: relative;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  width: auto;
+  width: 100px;
+  min-width: 100%;
+  white-space: nowrap;
   overflow: visible;
-  width: 400px;
 }
 
 .container:focus-within {
@@ -22,6 +21,7 @@
 }
 
 .wrapper {
-  max-width: 48rem;
+  max-width: none;
   margin: 0 auto;
+  overflow-x: auto;
 } 

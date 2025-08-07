@@ -20,8 +20,8 @@ export function MathParserPlugin() {
 
         if (matches && matches.length > 0) {
           console.log('Math detected:', matches);
-          // Trigger the command to insert MathNode
-          editor.dispatchCommand(INSERT_MATH_COMMAND, { deleteLength: matches[0].length });
+          // Trigger the command to insert MathNode with the detected math text
+          editor.dispatchCommand(INSERT_MATH_COMMAND, { replace: matches[0] });
         }
       });
     });

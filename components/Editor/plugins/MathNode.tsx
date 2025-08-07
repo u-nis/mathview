@@ -1,13 +1,16 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type { EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode } from 'lexical';
-import { COMMAND_PRIORITY_LOW, createCommand, DecoratorNode, $getSelection, $isRangeSelection, $isTextNode } from 'lexical';
-import React from 'react';
-import MathEditor from '@/components/mathview/MathEditor';
+import type { LexicalNode, NodeKey, SerializedLexicalNode } from 'lexical';
+import { createCommand, DecoratorNode, $getSelection, COMMAND_PRIORITY_LOW, $createRangeSelection, $setSelection, $isRangeSelection, $getNodeByKey, $createNodeSelection } from 'lexical';
+import React, { useRef, useEffect, useState } from 'react';
+import MathEditor, { MathEditorAPI } from '@/components/mathview/MathEditor';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 
 // Serialized type for the MathNode
 export type SerializedMathNode = SerializedLexicalNode;
 
+let initMathString = "";
 export class MathNode extends DecoratorNode<React.ReactElement> {
+
   static getType(): string {
     return 'math';
   }
@@ -39,45 +42,80 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
   }
 
   updateDOM(): boolean {
-    // Return false to prevent DOM replacement
     return false;
   }
 
   decorate(): React.ReactElement {
-    return (
-      <MathNodeComponent 
-        nodeKey={this.getKey()}
-      />
-    );
+    return <MathNodeComponent nodeKey={this.__key}/>;
   }
 }
 
 // React component wrapper for the MathEditor
-function MathNodeComponent({ 
-  nodeKey 
-}: { 
-  nodeKey: string;
-}) {
+function MathNodeComponent({ nodeKey }: { nodeKey: string }) {
   const [editor] = useLexicalComposerContext();
+  const mathEditorRef = useRef<MathEditorAPI>(null);
+  const hasInsertedRef = useRef(false);
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
-  // Handle focus management
-  const handleFocus = React.useCallback(() => {
-    // When math editor is focused, we need to update Lexical's selection
-    editor.update(() => {
-      const selection = $getSelection();
-      if (selection && $isRangeSelection(selection)) {
-        // Set selection to this node
-        selection.focus.set(nodeKey, 0, 'element');
-        selection.anchor.set(nodeKey, 0, 'element');
+  // Effect to handle selection changes
+  useEffect(() => {
+    if (isSelected) {
+      console.log('MathNode SELECTED via useLexicalNodeSelection');
+      if (mathEditorRef.current) {
+        mathEditorRef.current.focus();
       }
+    }
+  }, [isSelected]);
+
+  // Effect to insert the detected math string when the component mounts
+  useEffect(() => {
+    console.log('MathNodeComponent effect running, initMathString:', initMathString, 'mathEditorRef.current:', mathEditorRef.current);
+    
+    if (initMathString && mathEditorRef.current && !hasInsertedRef.current) {
+      // Insert each character from the detected math string
+      for (let i = 0; i < initMathString.length; i++) {
+        console.log('Inserting character:', initMathString[i]);
+        mathEditorRef.current.insert(initMathString[i]);
+      }
+      
+      hasInsertedRef.current = true;
+      console.log('Insertion completed, hasInserted set to true');
+    }
+    
+    // Always focus the MathEditor when component mounts
+    setTimeout(() => {
+      console.log('Attempting to focus MathEditor, ref available:', mathEditorRef.current);
+      if (mathEditorRef.current) {
+        mathEditorRef.current.focus();
+        console.log('Focus called on MathEditor');
+      }
+    }, 50);
+  }, []);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    editor.update(() => {
+      const nodeSelection = $createNodeSelection();
+      nodeSelection.add(nodeKey);
+      $setSelection(nodeSelection);
     });
-  }, [editor, nodeKey]);
+  };
 
   return (
-    <div onFocus={handleFocus}>
-      <MathEditor />
+    <div 
+      style={{ border: '1px solid red', padding: '4px', margin: '2px' }} 
+      data-lexical-math-editor
+      onClick={handleClick}
+    >
+      <MathEditor ref={mathEditorRef} />
     </div>
   );
+}
+
+// Utility function to get MathEditor API from a MathNode
+export function getMathEditorAPI(nodeKey: string): MathEditorAPI | null {
+  return null; // No longer needed
 }
 
 // Utility functions
@@ -89,8 +127,8 @@ export function $isMathNode(node: LexicalNode | null | undefined): node is MathN
   return node instanceof MathNode;
 }
 
-// Command to insert math node, with argument for how many characters to delete before inserting
-export const INSERT_MATH_COMMAND = createCommand<{ deleteLength: number }>('insertMath');
+// Command to insert math node
+export const INSERT_MATH_COMMAND = createCommand<{ replace?: string }>('insertMath');
 
 // Plugin to register the command
 export function MathNodePlugin(): null {
@@ -103,30 +141,24 @@ export function MathNodePlugin(): null {
   editor.registerCommand(
     INSERT_MATH_COMMAND,
     (payload) => {
+      // If replace string is provided, delete it from Lexical first
+      if (payload?.replace) {
+        deleteMathString(editor, payload.replace);
+      }
+      
       editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection) && payload?.deleteLength > 0) {
-          const anchor = selection.anchor;
-          const node = anchor.getNode();
-          const offset = anchor.offset;
-          // Only proceed if the anchor is in a TextNode and there's enough text to delete
-          if ($isTextNode(node) && offset >= payload.deleteLength) {
-            // Set the selection to cover the pattern to delete
-            selection.setTextNodeRange(
-              node,
-              offset - payload.deleteLength,
-              node,
-              offset
-            );
-            // Remove the selected text
-            selection.removeText();
-          }
-        }
-        // Insert the MathNode at the cursor (now after the deleted text)
         const mathNode = $createMathNode();
-        const newSelection = $getSelection();
-        if (newSelection) {
-          newSelection.insertNodes([mathNode]);
+        const selection = $getSelection();
+        if (selection) {
+          selection.insertNodes([mathNode]);
+          
+          // Set the global variable for the MathNodeComponent to use
+          if (payload?.replace) {
+            initMathString = payload.replace;
+          }
+          
+          // Clear the selection in the Lexical editor
+          $setSelection(null);
         }
       });
       return true;
@@ -135,4 +167,28 @@ export function MathNodePlugin(): null {
   );
 
   return null;
+}
+
+// Function to delete math string from Lexical
+export function deleteMathString(editor: any, replace: string) {
+  editor.update(() => {
+    const selection = $getSelection();
+    if (selection && $isRangeSelection(selection)) {
+      const anchor = selection.anchor;
+      const focus = selection.focus;
+      
+      // Ensure we don't go out of bounds
+      const startOffset = Math.max(0, anchor.offset - replace.length);
+      
+      // Create a selection that starts 'replace.length' characters behind the current position
+      const newSelection = $createRangeSelection();
+      newSelection.anchor.set(anchor.key, startOffset, anchor.type);
+      newSelection.focus.set(focus.key, focus.offset, focus.type);
+      
+      $setSelection(newSelection);
+      
+      // Delete the selected content
+      newSelection.removeText();
+    }
+  });
 }
