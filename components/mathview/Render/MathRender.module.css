@@ -1,45 +1,11 @@
 /* Simplified MathQuill-equivalent styles for mathematical expression rendering */
 
-/* Root block styling */
-.rootBlock {
-  display: inline-block;
-  width: 100%;
-  padding: 2px;
-  box-sizing: border-box;
-  white-space: nowrap;
-  overflow: hidden;
-  vertical-align: middle;
-  font-variant: normal;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 40px;
-  line-height: 1;
-  font-family: Symbola, 'Times New Roman', serif;
-  color: black;
-}
-
-/* Basic styling reset */
-.rootBlock * {
-  font-size: inherit;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-  border-color: black;
-  user-select: none;
-  box-sizing: border-box;
-  color: inherit;
-}
-
-/* Row styling */
-.row {
-  display: inline-block;
-}
-
 /* Symbol styling */
 .symbol {
   display: inline;
   font-family: Symbola, 'Times New Roman', serif;
   line-height: 0.9;
+  font-size: 100%; /* Base size relative to container */
 }
 
 /* Binary operator spacing */
@@ -54,8 +20,6 @@
   margin-left: -1px;
   position: relative;
   z-index: 1;
-  padding: 0;
-  display: inline-block;
 }
 
 .cursor.blink {
@@ -65,9 +29,11 @@
 /* Fraction styling */
 .fraction {
   text-align: center;
+  
   padding: 0 0.2em;
   display: inline-block;
-  font-size: 90%;
+  vertical-align: -0.55em;
+  font-size: 90%; /* 90% of the base font size */
 }
 
 .numerator,
@@ -75,54 +41,41 @@
   display: block;
 }
 
-
 .denominator {
   border-top: 1px solid;
   float: right;
   width: 100%;
-  padding: 0.1em;
-}
-
-/* Nested fraction styling */
-.fraction .fraction {
-  font-size: 8 0%;
+  padding: 0em;
 }
 
 /* Exponent styling - exact MathQuill implementation */
 .exponent {
   text-align: left;
-  font-size: 90%;
+  font-size: 90%; /* 90% of the base font size */
   vertical-align: 0.5em;
   display: inline-block;
 }
 
-.exponent .exponentContent {
-  display: block;
+/* Root block styling */
+.rootBlock {
+  display: inline;
+  line-height: 1.2;
 }
 
-/* Special styles for fractions within exponents */
-.exponent .fraction {
-  font-size: 70%;
+.rootBlock.empty {
+  min-width: 1em;
 }
 
-/* Binary operators within exponents get reduced padding */
-.exponent .binaryOperator {
-  padding: 0 0.1em;
-}
-
-/* Non-leaf elements (containers) */
+/* Non-leaf elements (fractions, exponents) */
 .nonLeaf {
   display: inline-block;
 }
 
-/* Empty state styling */
-.rootBlock.empty::after {
-  visibility: hidden;
-  content: 'c';
+/* Exponent content */
+.exponentContent {
+  display: inline-block;
+  vertical-align: super;
+  font-size: 70%; /* 70% of the base font size */
+  line-height: 1;
 }
 
-/* Prevent collapse with invisible content */
-.rootBlock:empty::after {
-  visibility: hidden;
-  content: '\u200B';
-}

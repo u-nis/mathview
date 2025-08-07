@@ -36,3 +36,12 @@ export interface Cursor extends base {
 };
 
 export type Node = Symbol | Row | Fraction | Exponent | Cursor;
+
+// Simple configuration for MathEditor styling
+export interface MathViewConfig {
+    fontFamily?: string;
+    fontSize?: string;
+    fontColor?: string;
+    backgroundColor?: string;
+    cursorColor?: string;
+}
