@@ -55,26 +55,28 @@ export default function Editor() {
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div style={{display: 'flex', alignItems: 'flex-start'}}>
       <MathParserPlugin />
       <MathNodePlugin />
 
-      <div className="editor-container">
-        <Toolbar/>
-        <ListPlugin />
-        <HistoryPlugin />
-        <BannerPlugin />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable
-              className="editor-input"
-            />
-          }
-          placeholder={<div>Enter some text...</div>}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-      </div>
-      <TreeViewWrapper />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div className="editor-container">
+          <Toolbar/>
+          <ListPlugin />
+          <HistoryPlugin />
+          <BannerPlugin />
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable
+                className="editor-input"
+              />
+            }
+            placeholder={<div>Enter some text...</div>}
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+        </div>
+        <div className="treeview-container" style={{color: 'black'}}>
+          <TreeViewWrapper />
+        </div>
       </div>
     </LexicalComposer>
     

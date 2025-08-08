@@ -1,11 +1,11 @@
 
 .editor-container{
-    width: 50%;
+    width: 1086px;
+    height: 1540.42px;
     margin: 0 auto;
     background-color: white;
     outline: 1px solid #ccc;
     color: black;
-    min-height: 800px;
 }
 .toolbar{
     display: flex;
@@ -19,4 +19,35 @@
     font-family: 'Times New Roman', serif;
     font-size: 15px;
     line-height: 1.4;
+    outline: none;
+}
+.editor-input:focus,
+.editor-input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove focus outline from toolbar controls */
+.button:focus,
+.button:focus-visible,
+.dropdown:focus,
+.dropdown:focus-visible,
+.font-size-input-container:focus,
+.font-size-input-container:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Also prevent any default inner focus ring inside editor scope */
+.editor-container :focus,
+.editor-container :focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.treeview-container {
+    width: 1086px;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    padding: 8px 12px;
 }

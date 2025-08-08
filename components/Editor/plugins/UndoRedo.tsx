@@ -15,12 +15,8 @@ export default function UndoRedo() {
 
   return (
     <>
-      <button className="button" onClick={onUndo}>
-        ←
-      </button>
-      <button className="button" onClick={onRedo}>
-        →
-      </button>
+      <button className="button" title="Undo" aria-label="Undo" onClick={onUndo}>{'<'}</button>
+      <button className="button" title="Redo" aria-label="Redo" onClick={onRedo}>{'>'}</button>
     </>
   );
 } 

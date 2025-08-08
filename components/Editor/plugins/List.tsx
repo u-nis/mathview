@@ -37,7 +37,6 @@ export default function List() {
           className="dropdown"
         >
           {selectedList}
-          <span style={{ fontSize: '12px' }}>▼</span>
         </button>
         {isListDropdownOpen && (
           <div
@@ -47,7 +46,7 @@ export default function List() {
               left: '0',
               background: 'white',
               border: '1px solid #ccc',
-              borderRadius: '4px',
+              borderRadius: '0px',
               marginTop: '4px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               zIndex: 1000,
@@ -62,7 +61,7 @@ export default function List() {
               <button
                 key={item.text}
                 style={{
-                  padding: '8px',
+                  padding: '6px 8px',
                   width: '100%',
                   textAlign: 'left',
                   border: 'none',

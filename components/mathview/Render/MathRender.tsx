@@ -111,9 +111,10 @@ function RenderNode({ node, depth, config, showCursor }: { node: Node; depth: nu
     const isOperator = /^[+\-*/=]$/.test(value)
     const isDigit = /^[0-9]$/.test(value)
     const className = `${styles.symbol}${isOperator ? ' ' + styles.operator : ''}${isDigit ? ' ' + styles.digit : ''}`
+    const display = value === '*' ? '·' : value
     return (
       <span className={className}>
-        {value}
+        {display}
       </span>
     )
   }

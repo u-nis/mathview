@@ -2,6 +2,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $getSelection, $isRangeSelection } from "lexical";
 import { useState, useRef, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
+import { $patchStyleText } from "@lexical/selection";
 import "../styles.css";
 
 export default function TextColor() {
@@ -36,7 +37,7 @@ export default function TextColor() {
         <div style={{ position: 'relative' }}>
         <button className="button" onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}>A</button>
         {isColorPickerOpen && (
-          <div ref={colorPickerRef} style={{ position: 'absolute', top: '100%', left: '0', background: 'white', border: '1px solid #ccc', borderRadius: '4px', marginTop: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1000, padding: '8px' }}>
+          <div ref={colorPickerRef} style={{ position: 'absolute', top: '100%', left: '0', background: 'white', border: '1px solid #ccc', borderRadius: '0px', marginTop: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1000, padding: '8px' }}>
             <HexColorPicker 
               color={selectedColor} 
               onChange={(color) => {
