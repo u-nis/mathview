@@ -12,7 +12,6 @@ import { INSERT_BANNER_COMMAND } from "./plugins/BannerPlugin";
 import { JSX } from "react";
 import "@/components/Editor/styles.css";
 
-
 function BannertoolbarPlugin(): JSX.Element{
     const [editor] = useLexicalComposerContext();
     const onClick = (e: React.MouseEvent) => {
@@ -23,19 +22,37 @@ function BannertoolbarPlugin(): JSX.Element{
     )
 }
 
+function Separator() {
+  return <span className="toolbar-separator" aria-hidden="true" />
+}
+
 export default function Toolbar() {
     return (
-        <div className="toolbar" style={{backgroundColor: 'white', display: 'flex', gap: '0.5rem', padding: '8px', borderBottom: '1px solid #eee' }}>
-            <UndoRedo />
-            <TextFormat />
-            <Font />
-            <FontSize />
-            <TextFormatting />
-            <TextColor />
-            <Highlight />
-            {/* <Alignment /> */}
-            <List />
-            <BannertoolbarPlugin />
+        <div className="toolbar toolbar-mac">
+            <div className="toolbar-group">
+                <UndoRedo />
+            </div>
+            <Separator />
+            <div className="toolbar-group">
+                <TextFormat />
+                <List />
+                {/* <Alignment /> */}
+            </div>
+            <Separator />
+            <div className="toolbar-group">
+                <Font />
+                <FontSize />
+            </div>
+            <Separator />
+            <div className="toolbar-group">
+                <TextFormatting />
+                <TextColor />
+                <Highlight />
+            </div>
+            <div className="toolbar-spacer" />
+            <div className="toolbar-group">
+                <BannertoolbarPlugin />
+            </div>
         </div>
     )
 }

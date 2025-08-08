@@ -39,7 +39,6 @@ export default function Font() {
           className="dropdown"
         >
           {selectedFont}
-          <span style={{ fontSize: '12px' }}>▼</span>
         </button>
         {isFontDropdownOpen && (
           <div
@@ -49,7 +48,7 @@ export default function Font() {
               left: '0',
               background: 'white',
               border: '1px solid #ccc',
-              borderRadius: '4px',
+              borderRadius: '0px',
               marginTop: '4px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               zIndex: 1000,
@@ -65,7 +64,7 @@ export default function Font() {
               <button
                 key={item.text}
                 style={{
-                  padding: '8px',
+                  padding: '6px 8px',
                   width: '100%',
                   textAlign: 'left',
                   border: 'none',

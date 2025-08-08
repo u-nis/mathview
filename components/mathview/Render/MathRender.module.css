@@ -81,7 +81,7 @@
   top: -0.08em; /* fine-tuned for balance */
   left: 0;
   right: 0;
-  height: 1px;
+  height: 0.5px; /* thinner line */
   background: currentColor;
 }
 
