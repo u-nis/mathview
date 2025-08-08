@@ -5,6 +5,7 @@ import {ContentEditable} from '@lexical/react/LexicalContentEditable';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import '@/styles/editor.css';
+import './margin-ruler.css';
 import {HeadingNode} from '@lexical/rich-text';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
 import {
@@ -17,6 +18,8 @@ import { MathParserPlugin } from './plugins/MathParser';
 import { TreeView } from '@lexical/react/LexicalTreeView';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { MathNode, MathNodePlugin } from './plugins/MathNode';
+import MarginRuler from './MarginRuler';
+import { useState } from 'react';
 
 const theme = {
   heading: {
@@ -53,6 +56,15 @@ export default function Editor() {
     nodes: [HeadingNode, ListNode, ListItemNode, BannerNode, MathNode],
   };
 
+  const [leftMargin, setLeftMargin] = useState(72);
+  const [rightMargin, setRightMargin] = useState(72);
+  const contentWidth = 1086;
+
+  const onRulerChange = (leftPx: number, rightPx: number) => {
+    setLeftMargin(leftPx);
+    setRightMargin(rightPx);
+  };
+
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <MathParserPlugin />
@@ -61,18 +73,22 @@ export default function Editor() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
         <div className="editor-container">
           <Toolbar/>
-          <ListPlugin />
-          <HistoryPlugin />
-          <BannerPlugin />
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className="editor-input"
-              />
-            }
-            placeholder={<div>Enter some text...</div>}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
+          <div>
+            <MarginRuler width={contentWidth} leftMargin={leftMargin} rightMargin={rightMargin} onChange={onRulerChange} />
+          </div>
+          <div className="editor-content" style={{ paddingLeft: leftMargin, paddingRight: rightMargin }}>
+            <ListPlugin />
+            <HistoryPlugin />
+            <BannerPlugin />
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className="editor-input"
+                />
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
         </div>
         <div className="treeview-container" style={{color: 'black'}}>
           <TreeViewWrapper />
