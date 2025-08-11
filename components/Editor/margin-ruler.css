@@ -8,6 +8,7 @@
   position: relative;
   height: 24px;
   background: white; 
+  outline: 1px solid black;
 
   overflow: hidden;
 }

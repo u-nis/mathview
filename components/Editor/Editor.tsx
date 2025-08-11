@@ -4,7 +4,7 @@ import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
 import {ContentEditable} from '@lexical/react/LexicalContentEditable';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import '@/styles/editor.css';
+import './editor.css';
 import './margin-ruler.css';
 import {HeadingNode} from '@lexical/rich-text';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
