@@ -1,0 +1,47 @@
+/* TopBar styles (scoped to TopBar folder) */
+.topbar {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid black;
+  margin-bottom: 20px;
+
+}
+
+.topbar .menu-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 8px;
+}
+
+.topbar .menu {
+  position: relative;
+}
+
+.topbar .menu-button {
+  background: transparent;
+  border: none;
+  color: #111;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.topbar .menu-button:hover { background: #f3f3f3; }
+.topbar .menu-button.open { background: #ededed; }
+
+.topbar .dropdown {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  border-radius: 6px;
+  padding: 8px 0;
+  z-index: 1000;
+}
+
