@@ -1,18 +1,28 @@
 
 .editor-container{
-    width: 1086px;
-    height: 1540.42px;
+    width: 950px;
+    height: 1343.5px;
     background-color: white;
-    outline: 1px solid black;
     color: black;
     display: flex;
     flex-direction: column;
+}
+
+/* Frame that sits behind editor-container and includes space for vertical rulers */
+.editor-frame {
+    background: white;
+    position: relative;
+    display: flex;
+    justify-content: center; /* center editor-container within expanded frame */    
+    outline: 1px solid black;
+
 }
 
 .editor-content {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    cursor: text; /* indicates click-to-type anywhere */
 }
 
 /* Ensure Lexical content uses Times New Roman at 15px */
@@ -21,6 +31,7 @@
     font-size: 15px;
     line-height: 1.4;
     outline: none;
+    min-height: 100%; /* expand to make empty space clickable */
 }
 .editor-input:focus,
 .editor-input:focus-visible {

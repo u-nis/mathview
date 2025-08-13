@@ -19,7 +19,9 @@ import { TreeView } from '@lexical/react/LexicalTreeView';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { MathNode, MathNodePlugin } from './plugins/MathNode';
 import MarginRuler from './MarginRuler';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import RightRuler from './RightRuler';
+import LeftRuler from './LeftRuler';
 
 const theme = {
   heading: {
@@ -58,7 +60,24 @@ export default function Editor() {
 
   const [leftMargin, setLeftMargin] = useState(72);
   const [rightMargin, setRightMargin] = useState(72);
-  const contentWidth = 1086;
+  const [topMargin, setTopMargin] = useState(72);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number>(0);
+  const [editorWidth, setEditorWidth] = useState<number>(0);
+  const VERTICAL_RULER_OUTSIDE_PX = 29; // matches CSS offset used for vertical rulers
+
+  useEffect(() => {
+    const update = () => {
+      if (contentRef.current) setContentHeight(contentRef.current.clientHeight);
+      if (containerRef.current) setEditorWidth(containerRef.current.clientWidth);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    if (contentRef.current) ro.observe(contentRef.current);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   const onRulerChange = (leftPx: number, rightPx: number) => {
     setLeftMargin(leftPx);
@@ -71,23 +90,36 @@ export default function Editor() {
       <MathNodePlugin />
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        <div className="editor-container">
-          <Toolbar/>
-          <div>
-            <MarginRuler width={contentWidth} leftMargin={leftMargin} rightMargin={rightMargin} onChange={onRulerChange} />
-          </div>
-          <div className="editor-content" style={{ paddingLeft: leftMargin, paddingRight: rightMargin }}>
-            <ListPlugin />
-            <HistoryPlugin />
-            <BannerPlugin />
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable
-                  className="editor-input"
-                />
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
+        <div className="editor-frame" style={{ width: editorWidth + 2 * VERTICAL_RULER_OUTSIDE_PX, marginLeft: -VERTICAL_RULER_OUTSIDE_PX }}>
+          <div className="editor-container" ref={containerRef}>
+            <Toolbar/>
+            <div>
+              <MarginRuler width={editorWidth} leftMargin={leftMargin} rightMargin={rightMargin} onChange={onRulerChange} />
+            </div>
+            <div
+              className="editor-content"
+              ref={contentRef}
+              style={{ paddingLeft: leftMargin, paddingRight: rightMargin, paddingTop: topMargin, position: 'relative' }}
+              onMouseDown={(e) => {
+                // If user clicks the empty area (padding/background), focus the editor
+                if (e.target === e.currentTarget) {
+                  const el = document.querySelector('.editor-input') as HTMLDivElement | null;
+                  el?.focus();
+                }
+              }}
+            >
+            <LeftRuler height={contentHeight || 0} value={topMargin} onChange={setTopMargin} />
+            <RightRuler height={contentHeight || 0} value={topMargin} onChange={setTopMargin} />
+              <ListPlugin />
+              <HistoryPlugin />
+              <BannerPlugin />
+              <RichTextPlugin
+                contentEditable={
+                  <ContentEditable className="editor-input" />
+                }
+                ErrorBoundary={LexicalErrorBoundary}
+              />
+            </div>
           </div>
         </div>
         <div className="treeview-container" style={{color: 'black'}}>

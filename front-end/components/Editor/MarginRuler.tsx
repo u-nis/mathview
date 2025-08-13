@@ -113,25 +113,15 @@ export default function MarginRuler({
         {/* tick marks */}
         <div className="ruler-ticks">
           {ticks.map((t, idx) => (
-            <div
-              key={idx}
-              className={`ruler-tick ${t.type}`}
-              style={{ left: t.x }}
-            />
+            <div key={idx} className={`ruler-tick ${t.type}`} style={{ left: t.x }} />
           ))}
           {labels.map((l, idx) => (
-            <div
-              key={`lbl-${idx}`}
-              className="ruler-label"
-              style={{ left: l.x }}
-            >
+            <div key={`lbl-${idx}`} className="ruler-label" style={{ left: l.x }}>
               {l.label}
             </div>
           ))}
         </div>
         {/* shaded margins */}
-        <div className="ruler-shade" style={{ left: 0, width: leftHandleX }} />
-        <div className="ruler-shade" style={{ left: rightHandleX, width: localRight }} />
         {/* handles */}
         <button
           type="button"
