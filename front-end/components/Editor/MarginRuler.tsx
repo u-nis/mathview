@@ -81,14 +81,47 @@ export default function MarginRuler({
   const leftHandleX = localLeft;
   const rightHandleX = width - localRight;
 
+  // Build ticks and labels similar to Google Docs (96px per inch)
+  const DPI = 96; // pixels per inch approximation
+  const ticks: Array<{ x: number; type: "eighth" | "quarter" | "half" | "inch" }>
+    = [];
+  const labels: Array<{ x: number; label: string }>
+    = [];
+  {
+    const totalInches = Math.ceil(width / DPI) + 1;
+    for (let i = 0; i <= totalInches; i++) {
+      for (let j = 0; j < 8; j++) {
+        const x = i * DPI + (DPI / 8) * j;
+        if (x < 0 || x > width) continue;
+        let type: "eighth" | "quarter" | "half" | "inch" = "eighth";
+        if (j === 0) {
+          type = "inch";
+          if (i > 0) labels.push({ x, label: String(i) });
+        } else if (j % 4 === 0) {
+          type = "half";
+        } else if (j % 2 === 0) {
+          type = "quarter";
+        }
+        ticks.push({ x, type });
+      }
+    }
+  }
+
   return (
     <div className="editor-margin-ruler" style={{ width }}>
       <div className="ruler-track" ref={trackRef} style={{ width }}>
-        {/* ticks via background css */}
-        <div className="ruler-content" />
+        {/* tick marks */}
+        <div className="ruler-ticks">
+          {ticks.map((t, idx) => (
+            <div key={idx} className={`ruler-tick ${t.type}`} style={{ left: t.x }} />
+          ))}
+          {labels.map((l, idx) => (
+            <div key={`lbl-${idx}`} className="ruler-label" style={{ left: l.x }}>
+              {l.label}
+            </div>
+          ))}
+        </div>
         {/* shaded margins */}
-        <div className="ruler-shade" style={{ left: 0, width: leftHandleX }} />
-        <div className="ruler-shade" style={{ left: rightHandleX, width: localRight }} />
         {/* handles */}
         <button
           type="button"
