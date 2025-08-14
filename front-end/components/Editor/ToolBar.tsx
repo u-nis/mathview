@@ -28,7 +28,7 @@ function Separator() {
 
 export default function Toolbar() {
     return (
-        <div className="toolbar toolbar-mac">
+        <div className="toolbar">
             <div className="toolbar-group">
                 <UndoRedo />
             </div>

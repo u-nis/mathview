@@ -24,6 +24,7 @@ export interface MathEditorAPI {
     focus: () => void;
     setCursorToStart: () => void;
     setCursorToEnd: () => void;
+    setFontSize: (px: number) => void;
 }
 
 const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {}, nodeKey }, ref) => {
@@ -90,6 +91,14 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(({ config = {}, no
                 moveNode(cursor, rootRef.current, rootRef.current.children.length);
                 setCursor({ ...cursor });
                 inputRef.current?.focus();
+            }
+        },
+        setFontSize: (px: number) => {
+            // This relies on parent re-rendering MathEditor with new config
+            // but we also set style directly to ensure immediate visual update
+            const wrapper = document.querySelector(`.${styles.wrapper}`) as HTMLElement | null;
+            if (wrapper) {
+                wrapper.style.fontSize = `${px}px`;
             }
         }
     }), [cursor])
