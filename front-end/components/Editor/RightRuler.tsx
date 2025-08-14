@@ -7,6 +7,7 @@ interface RightRulerProps {
   onChange: (topPx: number) => void;
   min?: number;
   max?: number;
+  defaultValue?: number;
 }
 
 export default function RightRuler({
@@ -15,6 +16,7 @@ export default function RightRuler({
   onChange,
   min = 0,
   max = 400,
+  defaultValue = 72,
 }: RightRulerProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -52,6 +54,16 @@ export default function RightRuler({
     draggingRef.current = true;
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const onDoubleClickHandle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newTop = clamp(defaultValue);
+    if (newTop !== localValueRef.current) {
+      localValueRef.current = newTop;
+      setLocalValue(newTop);
+      onChange(newTop);
+    }
   };
 
   // Build vertical ticks and labels (96px per inch)
@@ -97,6 +109,7 @@ export default function RightRuler({
           className="vertical-handle"
           style={{ ['--handle-top' as any]: `${localValue}px` }}
           onMouseDown={onStartDrag}
+          onDoubleClick={onDoubleClickHandle}
           aria-label={`Adjust top margin (${Math.round(localValue)}px)`}
           title={`Top margin: ${Math.round(localValue)}px`}
         />

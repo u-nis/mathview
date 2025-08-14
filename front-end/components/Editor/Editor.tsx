@@ -100,11 +100,17 @@ export default function Editor() {
               className="editor-content"
               ref={contentRef}
               style={{ paddingLeft: leftMargin, paddingRight: rightMargin, paddingTop: topMargin, position: 'relative' }}
-              onMouseDown={(e) => {
-                // If user clicks the empty area (padding/background), focus the editor
-                if (e.target === e.currentTarget) {
-                  const el = document.querySelector('.editor-input') as HTMLDivElement | null;
-                  el?.focus();
+              onClick={(e) => {
+                const container = e.currentTarget as HTMLDivElement;
+                const ce = container.querySelector('.editor-input') as HTMLElement | null;
+                if (!ce) return;
+                const r = ce.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                const clickedInsideCE = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+                if (!clickedInsideCE) {
+                  // clicked the padding area; focus after click settles
+                  requestAnimationFrame(() => ce.focus());
                 }
               }}
             >
