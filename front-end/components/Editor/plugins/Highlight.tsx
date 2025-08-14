@@ -34,7 +34,7 @@ export default function Highlight() {
       };
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div style={{ display: 'inline-flex' }}>
         <button className="button" onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}>H</button>
         {isColorPickerOpen && (
           <div ref={colorPickerRef} style={{ position: 'absolute', top: '100%', left: '0', background: 'white', border: '1px solid #ccc', borderRadius: '4px', marginTop: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1000, padding: '8px' }}>

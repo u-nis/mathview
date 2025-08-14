@@ -1,5 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
+import { SET_MATHNODE_FONT_SIZE_COMMAND } from "./MathNode";
 import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
 import "../styles.css";
@@ -38,6 +39,12 @@ export default function FontSize() {
         $patchStyleText(selection, { 'font-size': `${clampedSize}px` });
       }
     });
+
+    // Also send to selected MathNode(s) if any are selected via node selection
+    editor.dispatchCommand(SET_MATHNODE_FONT_SIZE_COMMAND, clampedSize);
+
+    // Fire a DOM event so the currently mounted MathEditor can immediately adjust its rendered size
+    document.dispatchEvent(new CustomEvent('mathnode-apply-font-size', { detail: { px: clampedSize } }));
   };
 
   // Handle dragging
