@@ -1,10 +1,12 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect } from "react";
 import { $getRoot, $getSelection, $isRangeSelection } from "lexical";
-import { INSERT_MATH_COMMAND } from "./MathNode";
+import { INSERT_MATH_COMMAND } from "../Nodes/MathNode";
+import { useFontSize } from "../FontSizeContext";
 
 export function MathParserPlugin() {
   const [editor] = useLexicalComposerContext();
+  const { fontSize } = useFontSize();
 
   useEffect(() => {
     const registerUpdateListener = editor.registerUpdateListener(
@@ -21,38 +23,16 @@ export function MathParserPlugin() {
 
           if (matches && matches.length > 0) {
             console.log("Math detected:", matches);
-            // Try to read current font-size from selection's computed style if possible
-            let fontSizePx: number | undefined = undefined;
-            const selection = $getSelection();
-            try {
-              const domSel = window.getSelection();
-              if (domSel && domSel.anchorNode) {
-                const anchorEl = (
-                  domSel.anchorNode.nodeType === 3
-                    ? domSel.anchorNode.parentElement
-                    : (domSel.anchorNode as Element)
-                ) as Element | null;
-                if (anchorEl) {
-                  const cs = window.getComputedStyle(anchorEl);
-                  const parsed = parseFloat(cs.fontSize || "");
-                  if (!Number.isNaN(parsed)) {
-                    fontSizePx = Math.round(parsed);
-                  }
-                }
-              }
-            } catch {}
-
-            // Trigger the command to insert MathNode with detected math text and current font size
             editor.dispatchCommand(INSERT_MATH_COMMAND, {
               replace: matches[0],
-              fontSizePx,
+              fontSizePx: fontSize,
             });
           }
         });
       }
     );
     return registerUpdateListener;
-  }, [editor]);
+  }, [editor, fontSize]);
 
   return null;
 }
