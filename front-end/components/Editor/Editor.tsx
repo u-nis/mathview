@@ -1,44 +1,44 @@
 "use client";
-import {LexicalComposer} from '@lexical/react/LexicalComposer';
-import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
-import {ContentEditable} from '@lexical/react/LexicalContentEditable';
-import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import './editor.css';
-import './margin-ruler.css';
-import {HeadingNode} from '@lexical/rich-text';
-import {ListPlugin} from '@lexical/react/LexicalListPlugin';
-import {
-  ListNode, 
-  ListItemNode, 
-} from '@lexical/list';
-import Toolbar from './ToolBar';
-import { BannerNode, BannerPlugin } from './plugins/BannerPlugin';
-import { MathParserPlugin } from './plugins/MathParser';
-import { TreeView } from '@lexical/react/LexicalTreeView';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { MathNode, MathNodePlugin } from './plugins/MathNode';
-import MarginRuler from './MarginRuler';
-import { useEffect, useRef, useState } from 'react';
-import RightRuler from './RightRuler';
-import LeftRuler from './LeftRuler';
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import "./editor.css";
+import "./Rulers/margin-ruler.css";
+import { HeadingNode } from "@lexical/rich-text";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { ListNode, ListItemNode } from "@lexical/list";
+import Toolbar from "./ToolBar";
+import { BannerNode, BannerPlugin } from "./plugins/BannerPlugin";
+import { MathParserPlugin } from "./plugins/MathParser";
+import { FontSizeSyncPlugin } from "./plugins/FontSizeSync";
+import { MathNodeNavigationPlugin } from "./plugins/MathNodeNavigation";
+import { TreeView } from "@lexical/react/LexicalTreeView";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { MathNode, MathNodePlugin } from "./Nodes/MathNode";
+import MarginRuler from "./Rulers/MarginRuler";
+import { useEffect, useRef, useState } from "react";
+import RightRuler from "./Rulers/RightRuler";
+import LeftRuler from "./Rulers/LeftRuler";
+import { FontSizeProvider } from "./FontSizeContext";
 
 const theme = {
   heading: {
-    h1: 'text-2xl font-bold',
-    h2: 'text-xl font-bold',
-    h3: 'text-lg font-bold'
+    h1: "text-2xl font-bold",
+    h2: "text-xl font-bold",
+    h3: "text-lg font-bold",
   },
   text: {
-    bold: 'font-bold',
-    italic: 'italic',
-    underline: 'underline'
+    bold: "font-bold",
+    italic: "italic",
+    underline: "underline",
   },
   list: {
-    ol: 'list-decimal pl-5',
-    ul: 'list-disc pl-5'
+    ol: "list-decimal pl-5",
+    ul: "list-disc pl-5",
   },
-  banner: 'bg-blue-500 text-white p-2 rounded-md'
+  banner: "bg-blue-500 text-white p-2 rounded-md",
 };
 
 function onError(error: Error) {
@@ -52,7 +52,7 @@ function TreeViewWrapper() {
 
 export default function Editor() {
   const initialConfig = {
-    namespace: 'MyEditor',
+    namespace: "MyEditor",
     theme,
     onError,
     nodes: [HeadingNode, ListNode, ListItemNode, BannerNode, MathNode],
@@ -70,7 +70,8 @@ export default function Editor() {
   useEffect(() => {
     const update = () => {
       if (contentRef.current) setContentHeight(contentRef.current.clientHeight);
-      if (containerRef.current) setEditorWidth(containerRef.current.clientWidth);
+      if (containerRef.current)
+        setEditorWidth(containerRef.current.clientWidth);
     };
     update();
     const ro = new ResizeObserver(update);
@@ -85,54 +86,89 @@ export default function Editor() {
   };
 
   return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <MathParserPlugin />
-      <MathNodePlugin />
+    <FontSizeProvider>
+      <LexicalComposer initialConfig={initialConfig}>
+        <MathParserPlugin />
+        <MathNodePlugin />
+        <FontSizeSyncPlugin />
+        <MathNodeNavigationPlugin />
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        <div className="editor-frame" style={{ width: editorWidth + 2 * VERTICAL_RULER_OUTSIDE_PX, marginLeft: -VERTICAL_RULER_OUTSIDE_PX }}>
-          <div className="editor-container" ref={containerRef}>
-            <Toolbar/>
-            <div>
-              <MarginRuler width={editorWidth} leftMargin={leftMargin} rightMargin={rightMargin} onChange={onRulerChange} />
-            </div>
-            <div
-              className="editor-content"
-              ref={contentRef}
-              style={{ paddingLeft: leftMargin, paddingRight: rightMargin, paddingTop: topMargin, position: 'relative' }}
-              onClick={(e) => {
-                const container = e.currentTarget as HTMLDivElement;
-                const ce = container.querySelector('.editor-input') as HTMLElement | null;
-                if (!ce) return;
-                const r = ce.getBoundingClientRect();
-                const x = e.clientX;
-                const y = e.clientY;
-                const clickedInsideCE = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-                if (!clickedInsideCE) {
-                  // clicked the padding area; focus after click settles
-                  requestAnimationFrame(() => ce.focus());
-                }
-              }}
-            >
-            <LeftRuler height={contentHeight || 0} value={topMargin} onChange={setTopMargin} />
-            <RightRuler height={contentHeight || 0} value={topMargin} onChange={setTopMargin} />
-              <ListPlugin />
-              <HistoryPlugin />
-              <BannerPlugin />
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable className="editor-input" />
-                }
-                ErrorBoundary={LexicalErrorBoundary}
-              />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div
+            className="editor-frame"
+            style={{
+              width: editorWidth + 2 * VERTICAL_RULER_OUTSIDE_PX,
+              marginLeft: -VERTICAL_RULER_OUTSIDE_PX,
+            }}
+          >
+            <div className="editor-container" ref={containerRef}>
+              <Toolbar />
+              <div>
+                <MarginRuler
+                  width={editorWidth}
+                  leftMargin={leftMargin}
+                  rightMargin={rightMargin}
+                  onChange={onRulerChange}
+                />
+              </div>
+              <div
+                className="editor-content"
+                ref={contentRef}
+                style={{
+                  paddingLeft: leftMargin,
+                  paddingRight: rightMargin,
+                  paddingTop: topMargin,
+                  position: "relative",
+                }}
+                onClick={(e) => {
+                  const container = e.currentTarget as HTMLDivElement;
+                  const ce = container.querySelector(
+                    ".editor-input"
+                  ) as HTMLElement | null;
+                  if (!ce) return;
+                  const r = ce.getBoundingClientRect();
+                  const x = e.clientX;
+                  const y = e.clientY;
+                  const clickedInsideCE =
+                    x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+                  if (!clickedInsideCE) {
+                    // clicked the padding area; focus after click settles
+                    requestAnimationFrame(() => ce.focus());
+                  }
+                }}
+              >
+                <LeftRuler
+                  height={contentHeight || 0}
+                  value={topMargin}
+                  onChange={setTopMargin}
+                />
+                <RightRuler
+                  height={contentHeight || 0}
+                  value={topMargin}
+                  onChange={setTopMargin}
+                />
+                <ListPlugin />
+                <HistoryPlugin />
+                <BannerPlugin />
+                <RichTextPlugin
+                  contentEditable={<ContentEditable className="editor-input" />}
+                  ErrorBoundary={LexicalErrorBoundary}
+                />
+              </div>
             </div>
           </div>
+          <div className="treeview-container" style={{ color: "black" }}>
+            <TreeViewWrapper />
+          </div>
         </div>
-        <div className="treeview-container" style={{color: 'black'}}>
-          <TreeViewWrapper />
-        </div>
-      </div>
-    </LexicalComposer>
-    
+      </LexicalComposer>
+    </FontSizeProvider>
   );
 }

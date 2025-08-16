@@ -89,16 +89,82 @@ function MathNodeComponent({
   const hasInsertedRef = useRef(false);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
+  const lastSelectionRef = useRef<{ offset: number; key: string } | null>(null);
+  const navigationDirectionRef = useRef<"left" | "right" | null>(null);
+
+  // Track arrow key presses to determine navigation direction
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        navigationDirectionRef.current = "left";
+        console.log("MathNode: detected ArrowLeft press");
+      } else if (event.key === "ArrowRight") {
+        navigationDirectionRef.current = "right";
+        console.log("MathNode: detected ArrowRight press");
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Track selection changes to determine navigation direction
+  useEffect(() => {
+    const removeUpdateListener = editor.registerUpdateListener(
+      ({ editorState }) => {
+        editorState.read(() => {
+          const selection = $getSelection();
+          if ($isRangeSelection(selection) && !isSelected) {
+            // Store the last selection position when not in MathNode
+            const newSelection = {
+              offset: selection.anchor.offset,
+              key: selection.anchor.key,
+            };
+            console.log(
+              `MathNode: tracking selection - offset=${newSelection.offset}, key=${newSelection.key}`
+            );
+            lastSelectionRef.current = newSelection;
+          }
+        });
+      }
+    );
+
+    return removeUpdateListener;
+  }, [editor, isSelected]);
 
   // Effect to handle selection changes
   useEffect(() => {
     if (isSelected) {
       console.log("MathNode SELECTED via useLexicalNodeSelection");
       if (mathEditorRef.current) {
+        // Use arrow key direction to determine cursor placement
+        const direction = navigationDirectionRef.current;
+        console.log(`MathNode: last navigation direction was ${direction}`);
+
+        if (direction === "left") {
+          // Arrow left means we're entering from the right side
+          console.log(
+            "MathNode: entering from right (ArrowLeft), placing cursor at end"
+          );
+          mathEditorRef.current.restoreCursorAtEnd();
+        } else if (direction === "right") {
+          // Arrow right means we're entering from the left side
+          console.log(
+            "MathNode: entering from left (ArrowRight), placing cursor at start"
+          );
+          mathEditorRef.current.restoreCursorAtStart();
+        } else {
+          // Unknown direction, default to start
+          console.log("MathNode: unknown direction, defaulting to start");
+          mathEditorRef.current.restoreCursorAtStart();
+        }
+
+        // Clear the direction after using it
+        navigationDirectionRef.current = null;
         mathEditorRef.current.focus();
       }
     }
-  }, [isSelected]);
+  }, [isSelected, editor, nodeKey]);
 
   // Listen for external font-size apply events to update embedded MathEditor immediately
   useEffect(() => {
@@ -128,6 +194,11 @@ function MathNodeComponent({
       const isLeft = event.type === "math-navigate-left";
       const isRight = event.type === "math-navigate-right";
       if (!isLeft && !isRight) return;
+
+      // Remove cursor from MathEditor so it stops rendering
+      if (mathEditorRef.current) {
+        mathEditorRef.current.removeCursor();
+      }
 
       editor.update(() => {
         const node = $getNodeByKey(nodeKey);

@@ -1,9 +1,10 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
-import { SET_MATHNODE_FONT_SIZE_COMMAND } from "./MathNode";
+import { SET_MATHNODE_FONT_SIZE_COMMAND } from "../Nodes/MathNode";
 import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
 import "../styles.css";
+import { useFontSize } from "../FontSizeContext";
 
 // Constants
 const MIN_FONT_SIZE = 4;
@@ -14,8 +15,8 @@ const EDGE_WIDTH = 8;
 
 export default function FontSize() {
   const [editor] = useLexicalComposerContext();
-  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
-  const [inputValue, setInputValue] = useState(DEFAULT_FONT_SIZE.toString());
+  const { fontSize, setFontSize } = useFontSize();
+  const [inputValue, setInputValue] = useState(fontSize.toString());
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, size: 0 });
@@ -23,20 +24,20 @@ export default function FontSize() {
   const [selectionStart, setSelectionStart] = useState(0);
   const [selectionEnd, setSelectionEnd] = useState(0);
   const [scrollOffset, setScrollOffset] = useState(0);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
 
-  // Update font size in editor
-  const updateFontSize = (size: number) => {
+  // Update font size in context and editor
+  const applyFontSize = (size: number) => {
     const clampedSize = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, size));
-    setFontSize(clampedSize);
     setInputValue(clampedSize.toString());
-    
+    setFontSize(clampedSize);
+
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        $patchStyleText(selection, { 'font-size': `${clampedSize}px` });
+        $patchStyleText(selection, { "font-size": `${clampedSize}px` });
       }
     });
 
@@ -44,8 +45,17 @@ export default function FontSize() {
     editor.dispatchCommand(SET_MATHNODE_FONT_SIZE_COMMAND, clampedSize);
 
     // Fire a DOM event so the currently mounted MathEditor can immediately adjust its rendered size
-    document.dispatchEvent(new CustomEvent('mathnode-apply-font-size', { detail: { px: clampedSize } }));
+    document.dispatchEvent(
+      new CustomEvent("mathnode-apply-font-size", {
+        detail: { px: clampedSize },
+      })
+    );
   };
+
+  // Keep input value synced with context font size
+  useEffect(() => {
+    setInputValue(fontSize.toString());
+  }, [fontSize]);
 
   // Handle dragging
   useEffect(() => {
@@ -55,34 +65,37 @@ export default function FontSize() {
       const deltaX = e.clientX - dragStart.x;
       const deltaSize = Math.round(deltaX / DRAG_SENSITIVITY);
       const newSize = dragStart.size + deltaSize;
-      updateFontSize(newSize);
+      applyFontSize(newSize);
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, dragStart, editor]);
 
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsEditing(false);
         setSelectionStart(0);
         setSelectionEnd(0);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Get text width using measurement span
@@ -96,7 +109,7 @@ export default function FontSize() {
   const getCursorFromClick = (clickX: number) => {
     let bestPosition = 0;
     let minDistance = Infinity;
-    
+
     for (let i = 0; i <= inputValue.length; i++) {
       const textWidth = getTextWidth(inputValue.slice(0, i));
       const distance = Math.abs(clickX - textWidth);
@@ -132,23 +145,23 @@ export default function FontSize() {
   // Handle keyboard input
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isEditing) return;
-    
+
     e.stopPropagation();
     e.preventDefault();
 
     const hasSelection = selectionStart !== selectionEnd;
 
     switch (e.key) {
-      case 'Enter':
+      case "Enter":
         const newSize = parseInt(inputValue) || DEFAULT_FONT_SIZE;
-        updateFontSize(newSize);
+        applyFontSize(newSize);
         setIsEditing(false);
         setSelectionStart(0);
         setSelectionEnd(0);
         containerRef.current?.blur();
         break;
-        
-      case 'Escape':
+
+      case "Escape":
         setInputValue(fontSize.toString());
         setIsEditing(false);
         setSelectionStart(0);
@@ -157,8 +170,8 @@ export default function FontSize() {
         setScrollOffset(0);
         containerRef.current?.blur();
         break;
-        
-      case 'Backspace':
+
+      case "Backspace":
         if (hasSelection) {
           const start = Math.min(selectionStart, selectionEnd);
           const end = Math.max(selectionStart, selectionEnd);
@@ -168,13 +181,15 @@ export default function FontSize() {
           setSelectionStart(start);
           setSelectionEnd(start);
         } else if (cursorPosition > 0) {
-          const newValue = inputValue.slice(0, cursorPosition - 1) + inputValue.slice(cursorPosition);
+          const newValue =
+            inputValue.slice(0, cursorPosition - 1) +
+            inputValue.slice(cursorPosition);
           setInputValue(newValue);
           setCursorPosition(cursorPosition - 1);
         }
         break;
-        
-      case 'Delete':
+
+      case "Delete":
         if (hasSelection) {
           const start = Math.min(selectionStart, selectionEnd);
           const end = Math.max(selectionStart, selectionEnd);
@@ -184,38 +199,44 @@ export default function FontSize() {
           setSelectionStart(start);
           setSelectionEnd(start);
         } else if (cursorPosition < inputValue.length) {
-          const newValue = inputValue.slice(0, cursorPosition) + inputValue.slice(cursorPosition + 1);
+          const newValue =
+            inputValue.slice(0, cursorPosition) +
+            inputValue.slice(cursorPosition + 1);
           setInputValue(newValue);
         }
         break;
-        
-      case 'ArrowLeft':
+
+      case "ArrowLeft":
         if (e.shiftKey) {
           const newPos = Math.max(0, cursorPosition - 1);
           setCursorPosition(newPos);
           setSelectionEnd(newPos);
         } else {
-          const newPos = hasSelection ? Math.min(selectionStart, selectionEnd) : Math.max(0, cursorPosition - 1);
-          setCursorPosition(newPos);
-          setSelectionStart(newPos);
-          setSelectionEnd(newPos);
-        }
-        break;
-        
-      case 'ArrowRight':
-        if (e.shiftKey) {
-          const newPos = Math.min(inputValue.length, cursorPosition + 1);
-          setCursorPosition(newPos);
-          setSelectionEnd(newPos);
-        } else {
-          const newPos = hasSelection ? Math.max(selectionStart, selectionEnd) : Math.min(inputValue.length, cursorPosition + 1);
+          const newPos = hasSelection
+            ? Math.min(selectionStart, selectionEnd)
+            : Math.max(0, cursorPosition - 1);
           setCursorPosition(newPos);
           setSelectionStart(newPos);
           setSelectionEnd(newPos);
         }
         break;
 
-      case 'Home':
+      case "ArrowRight":
+        if (e.shiftKey) {
+          const newPos = Math.min(inputValue.length, cursorPosition + 1);
+          setCursorPosition(newPos);
+          setSelectionEnd(newPos);
+        } else {
+          const newPos = hasSelection
+            ? Math.max(selectionStart, selectionEnd)
+            : Math.min(inputValue.length, cursorPosition + 1);
+          setCursorPosition(newPos);
+          setSelectionStart(newPos);
+          setSelectionEnd(newPos);
+        }
+        break;
+
+      case "Home":
         if (e.shiftKey) {
           setCursorPosition(0);
           setSelectionEnd(0);
@@ -226,7 +247,7 @@ export default function FontSize() {
         }
         break;
 
-      case 'End':
+      case "End":
         if (e.shiftKey) {
           setCursorPosition(inputValue.length);
           setSelectionEnd(inputValue.length);
@@ -237,29 +258,33 @@ export default function FontSize() {
         }
         break;
 
-      case 'a':
+      case "a":
         if (e.ctrlKey || e.metaKey) {
           setSelectionStart(0);
           setSelectionEnd(inputValue.length);
           setCursorPosition(inputValue.length);
         }
         break;
-        
+
       default:
-        if (e.key >= '0' && e.key <= '9') {
+        if (e.key >= "0" && e.key <= "9") {
           let newValue: string;
           let newCursorPos: number;
-          
+
           if (hasSelection) {
             const start = Math.min(selectionStart, selectionEnd);
             const end = Math.max(selectionStart, selectionEnd);
-            newValue = inputValue.slice(0, start) + e.key + inputValue.slice(end);
+            newValue =
+              inputValue.slice(0, start) + e.key + inputValue.slice(end);
             newCursorPos = start + 1;
           } else {
-            newValue = inputValue.slice(0, cursorPosition) + e.key + inputValue.slice(cursorPosition);
+            newValue =
+              inputValue.slice(0, cursorPosition) +
+              e.key +
+              inputValue.slice(cursorPosition);
             newCursorPos = cursorPosition + 1;
           }
-          
+
           setInputValue(newValue);
           setCursorPosition(newCursorPos);
           setSelectionStart(newCursorPos);
@@ -272,7 +297,7 @@ export default function FontSize() {
   const handleMouseDown = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    
+
     if (x <= EDGE_WIDTH || x >= rect.width - EDGE_WIDTH) {
       setIsDragging(true);
       setDragStart({ x: e.clientX, size: fontSize });
@@ -282,7 +307,7 @@ export default function FontSize() {
     const wasEditing = isEditing;
     setIsEditing(true);
     containerRef.current?.focus();
-    
+
     if (!wasEditing) {
       // First click from outside - select all
       setSelectionStart(0);
@@ -292,7 +317,7 @@ export default function FontSize() {
       // Already editing - position cursor at click location
       const clickX = x - 8 + scrollOffset; // Account for padding and scroll
       const position = getCursorFromClick(clickX);
-      
+
       setCursorPosition(position);
       setSelectionStart(position);
       setSelectionEnd(position);
@@ -303,7 +328,7 @@ export default function FontSize() {
   const handleDoubleClick = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    
+
     // Don't handle double-click on drag edges
     if (x <= EDGE_WIDTH || x >= rect.width - EDGE_WIDTH) {
       return;
@@ -317,9 +342,9 @@ export default function FontSize() {
   // Keep cursor in bounds
   useEffect(() => {
     const maxPos = inputValue.length;
-    setCursorPosition(prev => Math.max(0, Math.min(maxPos, prev)));
-    setSelectionStart(prev => Math.max(0, Math.min(maxPos, prev)));
-    setSelectionEnd(prev => Math.max(0, Math.min(maxPos, prev)));
+    setCursorPosition((prev) => Math.max(0, Math.min(maxPos, prev)));
+    setSelectionStart((prev) => Math.max(0, Math.min(maxPos, prev)));
+    setSelectionEnd((prev) => Math.max(0, Math.min(maxPos, prev)));
   }, [inputValue]);
 
   // Render text with selection highlighting
@@ -335,11 +360,11 @@ export default function FontSize() {
 
     const start = Math.min(selectionStart, selectionEnd);
     const end = Math.max(selectionStart, selectionEnd);
-    
+
     return (
       <>
         <span>{inputValue.slice(0, start)}</span>
-        <span style={{ backgroundColor: '#0066cc', color: 'white' }}>
+        <span style={{ backgroundColor: "#0066cc", color: "white" }}>
           {inputValue.slice(start, end)}
         </span>
         <span>{inputValue.slice(end)}</span>
@@ -348,26 +373,31 @@ export default function FontSize() {
   };
 
   const containerStyles = {
-    cursor: isDragging ? 'ew-resize' : 'text',
+    cursor: isDragging ? "ew-resize" : "text",
   };
 
   const textContainerStyles = {
-    position: 'relative' as const,
+    position: "relative" as const,
     transform: `translateX(-${scrollOffset}px)`,
-    padding: '0 8px',
-    whiteSpace: 'nowrap' as const,
-    minWidth: '100%'
+    padding: "0 8px",
+    whiteSpace: "nowrap" as const,
+    minWidth: "100%",
   };
 
   const cursorStyles = {
-    position: 'absolute' as const,
-    left: `${8 + getTextWidth(inputValue.slice(0, cursorPosition)) - scrollOffset}px`,
-    top: '5px',
-    width: '1px',
-    height: '14px',
-    backgroundColor: 'black',
-    animation: isEditing && selectionStart === selectionEnd ? 'blink 1s infinite' : 'none',
-    display: isEditing && selectionStart === selectionEnd ? 'block' : 'none'
+    position: "absolute" as const,
+    left: `${
+      8 + getTextWidth(inputValue.slice(0, cursorPosition)) - scrollOffset
+    }px`,
+    top: "5px",
+    width: "1px",
+    height: "14px",
+    backgroundColor: "black",
+    animation:
+      isEditing && selectionStart === selectionEnd
+        ? "blink 1s infinite"
+        : "none",
+    display: isEditing && selectionStart === selectionEnd ? "block" : "none",
   };
 
   return (
@@ -380,16 +410,13 @@ export default function FontSize() {
           }
         `}
       </style>
-      
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
         {/* Decrease Button */}
-        <button 
-          className="button"
-          onClick={() => updateFontSize(fontSize - 1)}
-        >
+        <button className="button" onClick={() => applyFontSize(fontSize - 1)}>
           -
         </button>
-        
+
         {/* Fake Input Field */}
         <div
           ref={containerRef}
@@ -401,37 +428,36 @@ export default function FontSize() {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const onEdge = x <= EDGE_WIDTH || x >= rect.width - EDGE_WIDTH;
-            e.currentTarget.style.cursor = isDragging ? 'ew-resize' : (onEdge ? 'ew-resize' : 'text');
+            e.currentTarget.style.cursor = isDragging
+              ? "ew-resize"
+              : onEdge
+              ? "ew-resize"
+              : "text";
           }}
           className="font-size-input-container"
           style={containerStyles}
         >
-          <div style={textContainerStyles}>
-            {renderText()}
-          </div>
+          <div style={textContainerStyles}>{renderText()}</div>
           <span style={cursorStyles}></span>
-          
+
           {/* Hidden measurement span */}
-          <span 
+          <span
             ref={measureRef}
             style={{
-              position: 'absolute',
-              left: '-9999px',
-              fontSize: '16px',
-              fontFamily: 'monospace',
-              whiteSpace: 'pre'
+              position: "absolute",
+              left: "-9999px",
+              fontSize: "16px",
+              fontFamily: "monospace",
+              whiteSpace: "pre",
             }}
           />
         </div>
-        
+
         {/* Increase Button */}
-        <button 
-          className="button"
-          onClick={() => updateFontSize(fontSize + 1)}
-        >
+        <button className="button" onClick={() => applyFontSize(fontSize + 1)}>
           +
         </button>
       </div>
     </>
   );
-} 
+}
