@@ -46,7 +46,6 @@ export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void) =
         }
     }
      if (cursor.parent.id === 'root' && right === null) {
-        console.log("RIGHT IS NULL");
         // At the rightmost boundary of the root node
         const event = new CustomEvent('math-navigate-right', {
             detail: { nodeKey: (window as any).currentMathNodeKey }

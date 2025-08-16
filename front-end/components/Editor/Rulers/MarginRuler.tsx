@@ -8,6 +8,8 @@ interface MarginRulerProps {
   leftMargin: number; // current left margin px
   rightMargin: number; // current right margin px
   onChange: (leftPx: number, rightPx: number) => void;
+  defaultLeftMargin?: number;
+  defaultRightMargin?: number;
 }
 
 export default function MarginRuler({
@@ -17,6 +19,8 @@ export default function MarginRuler({
   leftMargin,
   rightMargin,
   onChange,
+  defaultLeftMargin = 72,
+  defaultRightMargin = 72,
 }: MarginRulerProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef<null | "left" | "right">(null);
@@ -78,6 +82,26 @@ export default function MarginRuler({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  const onDoubleClickLeft = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newLeft = clamp(defaultLeftMargin);
+    if (newLeft !== localLeftRef.current) {
+      localLeftRef.current = newLeft;
+      setLocalLeft(newLeft);
+      onChange(newLeft, localRightRef.current);
+    }
+  };
+
+  const onDoubleClickRight = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newRight = clamp(defaultRightMargin);
+    if (newRight !== localRightRef.current) {
+      localRightRef.current = newRight;
+      setLocalRight(newRight);
+      onChange(localLeftRef.current, newRight);
+    }
+  };
+
   const leftHandleX = localLeft;
   const rightHandleX = width - localRight;
 
@@ -128,6 +152,7 @@ export default function MarginRuler({
           className="ruler-handle left"
           style={{ left: leftHandleX }}
           onMouseDown={onStartDrag("left")}
+          onDoubleClick={onDoubleClickLeft}
           aria-label="Adjust left margin"
           title={`Left margin: ${Math.round(localLeft)}px`}
         />
@@ -136,6 +161,7 @@ export default function MarginRuler({
           className="ruler-handle right"
           style={{ left: rightHandleX }}
           onMouseDown={onStartDrag("right")}
+          onDoubleClick={onDoubleClickRight}
           aria-label="Adjust right margin"
           title={`Right margin: ${Math.round(localRight)}px`}
         />

@@ -5,6 +5,7 @@ import { moveLeft, moveRight, moveUp, moveDown } from './navigation'
 
 export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: Cursor) => void) => {
     logNodeTree(cursor.root)
+    console.log('input', input)
 
     // Handle arrow keys
     if (input === 'ArrowLeft') {
@@ -21,6 +22,17 @@ export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: C
     }
     if (input === 'ArrowDown') {
         moveDown(cursor, setCursor)
+        return
+    }
+    if (input === 'Backspace') {
+        //deleteNode(cursor, setCursor)
+        return
+    }
+    if (input === ' ') {
+        const event = new CustomEvent('math-navigate-right', {
+            detail: { nodeKey: (window as any).currentMathNodeKey }
+        });
+        document.dispatchEvent(event);
         return
     }
 

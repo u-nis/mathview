@@ -81,7 +81,8 @@
   top: -0.08em; /* fine-tuned for balance */
   left: 0;
   right: 0;
-  height: 0.5px; /* thinner line */
+  /* Ensure the fraction bar is always visible: scale with font and never below 1px */
+  height: max(1px, 0.06em);
   background: currentColor;
 }
 

@@ -1,21 +1,23 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-interface RightRulerProps {
+interface LeftRulerProps {
   height: number; // total ruler height in px
   value: number; // current top margin in px
   onChange: (topPx: number) => void;
   min?: number;
   max?: number;
+  defaultValue?: number;
 }
 
-export default function RightRuler({
+export default function LeftRuler({
   height,
   value,
   onChange,
   min = 0,
   max = 400,
-}: RightRulerProps) {
+  defaultValue = 72,
+}: LeftRulerProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const [localValue, setLocalValue] = useState(value);
@@ -54,6 +56,16 @@ export default function RightRuler({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  const onDoubleClickHandle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newTop = clamp(defaultValue);
+    if (newTop !== localValueRef.current) {
+      localValueRef.current = newTop;
+      setLocalValue(newTop);
+      onChange(newTop);
+    }
+  };
+
   // Build vertical ticks and labels (96px per inch)
   const DPI = 96;
   const ticks: Array<{ y: number; type: "eighth" | "quarter" | "half" | "inch" }> = [];
@@ -79,7 +91,7 @@ export default function RightRuler({
   }
 
   return (
-    <div className="vertical-ruler right-side" style={{ ['--ruler-height' as any]: `${height}px` }}>
+    <div className="vertical-ruler left-side" style={{ ['--ruler-height' as any]: `${height}px` }}>
       <div className="vertical-track" ref={trackRef}>
         <div className="vertical-ticks">
           {ticks.map((t, idx) => (
@@ -91,12 +103,13 @@ export default function RightRuler({
             </div>
           ))}
         </div>
-        {/* Single handle pointing to the right */}
+        {/* Single handle pointing left to match right ruler */}
         <button
           type="button"
           className="vertical-handle"
           style={{ ['--handle-top' as any]: `${localValue}px` }}
           onMouseDown={onStartDrag}
+          onDoubleClick={onDoubleClickHandle}
           aria-label={`Adjust top margin (${Math.round(localValue)}px)`}
           title={`Top margin: ${Math.round(localValue)}px`}
         />

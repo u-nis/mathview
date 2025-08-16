@@ -45,3 +45,17 @@ export const moveNode = (node: Node, newParent: Row, index: number) => {
     // Insert node into new parent's children at the specified index
     newParent.children.splice(index, 0, node)
 }
+
+// Helper function to move cursor to a specific node position
+export const moveCursorToNode = (cursor: Cursor, targetNode: Node, setCursor: (cursor: Cursor) => void) => {
+    if (!targetNode.parent || targetNode.parent.type !== 'row') {
+        return
+    }
+
+    const parent = targetNode.parent as Row
+    const targetIndex = getIndex(targetNode)
+    
+    // Move cursor to the position right after the clicked node
+    moveNode(cursor, parent, targetIndex + 1)
+    setCursor({ ...cursor })
+}

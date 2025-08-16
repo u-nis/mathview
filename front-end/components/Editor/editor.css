@@ -25,10 +25,10 @@
     cursor: text; /* indicates click-to-type anywhere */
 }
 
-/* Ensure Lexical content uses Times New Roman at 15px */
+/* Ensure Lexical content uses Times New Roman, font-size controlled by context */
 .editor-input {
     font-family: 'Times New Roman', serif;
-    font-size: 15px;
+    /* font-size removed - now controlled by FontSizeContext */
     line-height: 1.4;
     outline: none;
     min-height: 100%; /* expand to make empty space clickable */
