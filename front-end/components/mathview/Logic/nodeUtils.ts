@@ -51,13 +51,13 @@ const formatCursor = (cursor: Cursor, level: number): string => {
     return indent(`Cursor(id: ${cursor.id})`, level)
 }
 
-export const logNode = (node: Node) => {
+export const logNode = (node: Node): void => {
     console.log('\nNode Structure:')
     console.log(formatNode(node))
     console.log('\n')
 }
 
-export const logNodeTree = (root: Node) => {
+export const logNodeTree = (root: Node): void => {
     console.log('\nNode Tree:')
     console.log(formatNode(root))
     console.log('\n')

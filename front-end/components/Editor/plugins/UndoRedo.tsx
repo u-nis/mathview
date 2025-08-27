@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { UNDO_COMMAND, REDO_COMMAND } from "lexical";
-import "../styles.css";
+import "../Controls.css";
 
 export default function UndoRedo() {
   const [editor] = useLexicalComposerContext();
@@ -15,8 +15,22 @@ export default function UndoRedo() {
 
   return (
     <>
-      <button className="button" title="Undo" aria-label="Undo" onClick={onUndo}>{'<'}</button>
-      <button className="button" title="Redo" aria-label="Redo" onClick={onRedo}>{'>'}</button>
+      <button
+        className="button"
+        title="Undo"
+        aria-label="Undo"
+        onClick={onUndo}
+      >
+        {"<"}
+      </button>
+      <button
+        className="button"
+        title="Redo"
+        aria-label="Redo"
+        onClick={onRedo}
+      >
+        {">"}
+      </button>
     </>
   );
-} 
+}
