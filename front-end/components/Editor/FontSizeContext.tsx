@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState } from "react";
+import { MATH_EDITOR_CONSTANTS } from "../mathview/constants";
 
 type FontSizeContextType = {
   fontSize: number;
@@ -11,7 +12,9 @@ const FontSizeContext = createContext<FontSizeContextType | undefined>(
 );
 
 export function FontSizeProvider({ children }: { children: React.ReactNode }) {
-  const [fontSize, setFontSize] = useState(25); // Match CSS default
+  const [fontSize, setFontSize] = useState(
+    MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE
+  ); // Match CSS default
 
   return (
     <FontSizeContext.Provider value={{ fontSize, setFontSize }}>
