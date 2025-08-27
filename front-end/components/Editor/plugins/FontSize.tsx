@@ -3,7 +3,7 @@ import { $getSelection, $isRangeSelection } from "lexical";
 import { SET_MATHNODE_FONT_SIZE_COMMAND } from "../Nodes/MathNode";
 import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
-import "../styles.css";
+import "../Controls.css";
 import { useFontSize } from "../FontSizeContext";
 
 // Constants
@@ -411,7 +411,7 @@ export default function FontSize() {
         `}
       </style>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         {/* Decrease Button */}
         <button className="button" onClick={() => applyFontSize(fontSize - 1)}>
           -

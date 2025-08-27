@@ -1,0 +1,17 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid #CECECE;
+  background: white; /* classic light gray */
+  width: calc(100% + 58px); /* match editor-frame width (container width + 2*29px) */
+  margin-left: -29px; /* extend equally to the left */
+  box-sizing: border-box;
+}
+
+.toolbar-group {
+  display: flex;
+
+}
+
+

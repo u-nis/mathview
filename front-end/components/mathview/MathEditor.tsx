@@ -10,11 +10,12 @@ import MathInput from "./MathInput";
 import MathRender from "@/components/mathview/Render/MathRender";
 import { Row, Cursor, MathViewConfig, Node } from "./Types";
 import { handleInput } from "./Logic/handleInput";
-import { moveNode, moveCursorToNode } from "./Logic/helperFunctons";
+import { moveNode, moveCursorToNode } from "./Logic/helperFunctions";
 import styles from "./MathEditor.module.css";
 
+// ID generator for unique node identification
 let id = 0;
-export const createId = () => {
+export const createId = (): string => {
   id++;
   return id.toString();
 };
@@ -132,7 +133,6 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
         },
         restoreCursorAtStart: () => {
           // Restore cursor at index 0 with root node as parent
-          console.log("MathEditor: restoreCursorAtStart called");
           if (rootRef.current && cursor) {
             console.log("MathEditor: using moveNode to place cursor at start");
             moveNode(cursor, rootRef.current, 0);
@@ -142,7 +142,6 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
         },
         restoreCursorAtEnd: () => {
           // Restore cursor at the end (root.children.length) with root node as parent
-          console.log("MathEditor: restoreCursorAtEnd called");
           if (rootRef.current && cursor) {
             console.log("MathEditor: using moveNode to place cursor at end");
             moveNode(cursor, rootRef.current, rootRef.current.children.length);

@@ -4,8 +4,8 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import "./editor.css";
-import "./Rulers/margin-ruler.css";
+import styles from "./TextEditor.module.css";
+import "./Rulers/Ruler.css";
 import { HeadingNode } from "@lexical/rich-text";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ListNode, ListItemNode } from "@lexical/list";
@@ -13,11 +13,10 @@ import Toolbar from "./ToolBar";
 import { BannerNode, BannerPlugin } from "./plugins/BannerPlugin";
 import { MathParserPlugin } from "./plugins/MathParser";
 import { FontSizeSyncPlugin } from "./plugins/FontSizeSync";
-import { MathNodeNavigationPlugin } from "./plugins/MathNodeNavigation";
 import { TreeView } from "@lexical/react/LexicalTreeView";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { MathNode, MathNodePlugin } from "./Nodes/MathNode";
-import MarginRuler from "./Rulers/MarginRuler";
+import TopRuler from "./Rulers/TopRuler";
 import { useEffect, useRef, useState } from "react";
 import RightRuler from "./Rulers/RightRuler";
 import LeftRuler from "./Rulers/LeftRuler";
@@ -91,27 +90,18 @@ export default function Editor() {
         <MathParserPlugin />
         <MathNodePlugin />
         <FontSizeSyncPlugin />
-        <MathNodeNavigationPlugin />
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
+        <div>
           <div
-            className="editor-frame"
+            className={styles["editor-frame"]}
             style={{
               width: editorWidth + 2 * VERTICAL_RULER_OUTSIDE_PX,
-              marginLeft: -VERTICAL_RULER_OUTSIDE_PX,
             }}
           >
-            <div className="editor-container" ref={containerRef}>
+            <div className={styles["editor-container"]} ref={containerRef}>
               <Toolbar />
               <div>
-                <MarginRuler
+                <TopRuler
                   width={editorWidth}
                   leftMargin={leftMargin}
                   rightMargin={rightMargin}
@@ -119,7 +109,7 @@ export default function Editor() {
                 />
               </div>
               <div
-                className="editor-content"
+                className={styles["editor-content"]}
                 ref={contentRef}
                 style={{
                   paddingLeft: leftMargin,
@@ -127,20 +117,14 @@ export default function Editor() {
                   paddingTop: topMargin,
                   position: "relative",
                 }}
-                onClick={(e) => {
-                  const container = e.currentTarget as HTMLDivElement;
-                  const ce = container.querySelector(
-                    ".editor-input"
-                  ) as HTMLElement | null;
-                  if (!ce) return;
-                  const r = ce.getBoundingClientRect();
-                  const x = e.clientX;
-                  const y = e.clientY;
-                  const clickedInsideCE =
-                    x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-                  if (!clickedInsideCE) {
-                    // clicked the padding area; focus after click settles
-                    requestAnimationFrame(() => ce.focus());
+                onMouseDown={(e) => {
+                  if (e.target === e.currentTarget) {
+                    const ce = (
+                      e.currentTarget as HTMLDivElement
+                    ).querySelector(
+                      '[contenteditable="true"]'
+                    ) as HTMLElement | null;
+                    ce && requestAnimationFrame(() => ce.focus());
                   }
                 }}
               >
@@ -158,13 +142,18 @@ export default function Editor() {
                 <HistoryPlugin />
                 <BannerPlugin />
                 <RichTextPlugin
-                  contentEditable={<ContentEditable className="editor-input" />}
+                  contentEditable={
+                    <ContentEditable className={styles["editor-input"]} />
+                  }
                   ErrorBoundary={LexicalErrorBoundary}
                 />
               </div>
             </div>
           </div>
-          <div className="treeview-container" style={{ color: "black" }}>
+          <div
+            className={styles["treeview-container"]}
+            style={{ color: "black" }}
+          >
             <TreeViewWrapper />
           </div>
         </div>

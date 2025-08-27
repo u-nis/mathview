@@ -68,7 +68,10 @@ export default function LeftRuler({
 
   // Build vertical ticks and labels (96px per inch)
   const DPI = 96;
-  const ticks: Array<{ y: number; type: "eighth" | "quarter" | "half" | "inch" }> = [];
+  const ticks: Array<{
+    y: number;
+    type: "eighth" | "quarter" | "half" | "inch";
+  }> = [];
   const labels: Array<{ y: number; label: string }> = [];
   {
     const totalInches = Math.ceil(height / DPI) + 1;
@@ -91,14 +94,25 @@ export default function LeftRuler({
   }
 
   return (
-    <div className="vertical-ruler left-side" style={{ ['--ruler-height' as any]: `${height}px` }}>
+    <div
+      className="vertical-ruler left-side"
+      style={{ ["--ruler-height" as any]: `${height}px` }}
+    >
       <div className="vertical-track" ref={trackRef}>
         <div className="vertical-ticks">
           {ticks.map((t, idx) => (
-            <div key={idx} className={`vertical-tick ${t.type}`} style={{ ['--tick-top' as any]: `${t.y}px` }} />
+            <div
+              key={idx}
+              className={`vertical-tick ${t.type}`}
+              style={{ ["--tick-top" as any]: `${t.y}px` }}
+            />
           ))}
           {labels.map((l, idx) => (
-            <div key={`vlbl-${idx}`} className="vertical-label" style={{ ['--label-top' as any]: `${l.y}px` }}>
+            <div
+              key={`vlbl-${idx}`}
+              className="vertical-label"
+              style={{ ["--label-top" as any]: `${l.y}px` }}
+            >
               {l.label}
             </div>
           ))}
@@ -107,7 +121,7 @@ export default function LeftRuler({
         <button
           type="button"
           className="vertical-handle"
-          style={{ ['--handle-top' as any]: `${localValue}px` }}
+          style={{ ["--handle-top" as any]: `${localValue}px` }}
           onMouseDown={onStartDrag}
           onDoubleClick={onDoubleClickHandle}
           aria-label={`Adjust top margin (${Math.round(localValue)}px)`}
@@ -117,5 +131,3 @@ export default function LeftRuler({
     </div>
   );
 }
-
-

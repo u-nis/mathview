@@ -1,0 +1,78 @@
+/* Flat, crisp buttons */
+.button {
+  border-right: 1px solid #CECECE;
+  color: #111;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: 0;
+}
+.button:hover {
+  background: #eaeaea;
+}
+.button:active {
+  background: #dcdcdc;
+  box-shadow: inset 0 1px 1px #bbb;
+}
+
+/* Dropdowns tightened and flat */
+.dropdown {
+  padding: 0 6px;
+  height: 28px;
+  border-right: 1px solid #CECECE;
+  color: #111;
+  min-width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  cursor: pointer;
+  font-size: 11px;
+}
+.dropdown:hover {
+  background: #eaeaea;
+}
+
+/* Nicer dropdown caret */
+.dropdown {
+  position: relative;
+  padding-right: 26px; /* more room for larger caret */
+}
+.dropdown::after {
+  content: '▾';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px; /* larger caret */
+  line-height: 1;
+  color: #111;
+  pointer-events: none;
+}
+
+/* Font size control matches buttons */
+.font-size-input-container {
+  width: 35px;
+  height: 28px;
+  border-right: 1px solid #CECECE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  outline: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+/* Remove prior icon-specific sizing */
+.button.icon { all: unset; }
+
+

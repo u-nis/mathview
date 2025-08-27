@@ -1,11 +1,13 @@
 import { Cursor, Exponent, Fraction, Row, Symbol } from '../Types'
-import { getAdjacentNodes, getIndex, insertNode, moveNode } from './helperFunctons'
+import { getAdjacentNodes, getIndex, insertNode, moveNode } from './helperFunctions'
 import { createId } from '../MathEditor'
 
 
 // Handle basic symbol insertion (+, -, *, /)
-export const insertSymbol = (input: string, cursor: Cursor) => {
-    // TODO: Implement symbol insertion logic
+/**
+ * Inserts a symbol at the cursor position
+ */
+export const insertSymbol = (input: string, cursor: Cursor): void => {
     const symbolNode: Symbol = {
         type: 'symbol',
         value: input,
@@ -18,7 +20,10 @@ export const insertSymbol = (input: string, cursor: Cursor) => {
 }
 
 
-export const insertExponent = (input: string, cursor: Cursor) => {
+/**
+ * Inserts an exponent at the cursor position
+ */
+export const insertExponent = (input: string, cursor: Cursor): void => {
     const baseNode: Row = {
         type: 'row',
         children: [],
@@ -38,18 +43,16 @@ export const insertExponent = (input: string, cursor: Cursor) => {
         parent: cursor.parent,
         id: createId()
     }
-    moveNode(getAdjacentNodes(cursor).left,baseNode,0)
-    insertNode(exponentNode,cursor)
-    moveNode(cursor,raisedNode,1)
+    moveNode(getAdjacentNodes(cursor).left, baseNode, 0)
+    insertNode(exponentNode, cursor)
+    moveNode(cursor, raisedNode, 1)
 }
 
 
-// Handle fraction insertion
-export const insertFraction = (cursor: Cursor) => {
-    // TODO: Implement fraction insertion logic
-    // console.log('Left:', left)
-    // console.log('Right:', right)
-
+/**
+ * Inserts a fraction at the cursor position
+ */
+export const insertFraction = (cursor: Cursor): void => {
     const fractionNode: Fraction = {
         type: 'fraction',
         numerator: null,
@@ -100,14 +103,12 @@ export const insertFraction = (cursor: Cursor) => {
             moveNode(numberNode, numeratorNode, numeratorNode.children.length)
         }
 
-    moveNode(fractionNode, cursor.parent, cursorIndex)
-    moveNode(cursor, denominatorNode, 0)
-    }
-
-    else if (left.type === 'fraction'){
+        moveNode(fractionNode, cursor.parent, cursorIndex)
+        moveNode(cursor, denominatorNode, 0)
+    } else if (left.type === 'fraction') {
         console.log('Left is a fraction')
-    moveNode(fractionNode, cursor.parent, cursorIndex)
-        moveNode(left,numeratorNode,0)
+        moveNode(fractionNode, cursor.parent, cursorIndex)
+        moveNode(left, numeratorNode, 0)
         moveNode(cursor, denominatorNode, 0)
     }
 
@@ -115,8 +116,7 @@ export const insertFraction = (cursor: Cursor) => {
 
 
 
-// Handle deletion
-export const deleteAtCursor = (cursor: Cursor) => {
+export const deleteAtCursor = (cursor: Cursor): void => {
     // TODO: Implement deletion logic
     console.log('Deleting at cursor')
 }

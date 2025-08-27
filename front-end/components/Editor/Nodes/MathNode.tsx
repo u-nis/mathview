@@ -15,43 +15,68 @@ import {
 import React, { useRef, useEffect, useState } from "react";
 import MathEditor, { MathEditorAPI } from "@/components/mathview/MathEditor";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
-import "../styles.css";
+import "../Nodes/MathNode.css";
 
 // Serialized type for the MathNode
 export type SerializedMathNode = SerializedLexicalNode & {
   fontSize?: number;
+  fontFamily?: string;
+  fontColor?: string;
+  fontWeight?: string;
+  fontStyle?: string;
 };
 
 let initMathString = "";
 export class MathNode extends DecoratorNode<React.ReactElement> {
   __fontSize: number;
+  __fontFamily: string;
+  __fontColor: string;
+  __fontWeight: string;
+  __fontStyle: string;
 
   static getType(): string {
     return "math";
   }
 
   static clone(node: MathNode): MathNode {
-    return new MathNode(node.__fontSize, node.__key);
+    return new MathNode(
+      node.__fontSize,
+      node.__fontFamily,
+      node.__fontColor,
+      node.__fontWeight,
+      node.__fontStyle,
+      node.__key
+    );
   }
 
   static importJSON(serializedNode: SerializedMathNode): MathNode {
     return new MathNode(serializedNode.fontSize ?? 15);
   }
 
-  constructor(fontSize: number = 15, key?: NodeKey) {
+  constructor(
+    fontSize: number = 15,
+    fontFamily: string = "Times New Roman",
+    fontColor: string = "black",
+    fontWeight: string = "normal",
+    fontStyle: string = "normal",
+    key?: NodeKey
+  ) {
     super(key);
     this.__fontSize = fontSize;
-  }
-
-  // Ensure this node is treated as inline by Lexical
-  isInline(): boolean {
-    return true;
+    this.__fontFamily = fontFamily;
+    this.__fontColor = fontColor;
+    this.__fontWeight = fontWeight;
+    this.__fontStyle = fontStyle;
   }
 
   exportJSON(): SerializedMathNode {
     return {
       ...super.exportJSON(),
       fontSize: this.__fontSize,
+      fontFamily: this.__fontFamily,
+      fontColor: this.__fontColor,
+      fontWeight: this.__fontWeight,
+      fontStyle: this.__fontStyle,
     };
   }
 
@@ -71,7 +96,14 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
 
   decorate(): React.ReactElement {
     return (
-      <MathNodeComponent nodeKey={this.__key} fontSizePx={this.__fontSize} />
+      <MathNodeComponent
+        nodeKey={this.__key}
+        fontSizePx={this.__fontSize}
+        fontFamily={this.__fontFamily}
+        fontColor={this.__fontColor}
+        fontWeight={this.__fontWeight}
+        fontStyle={this.__fontStyle}
+      />
     );
   }
 }
@@ -80,9 +112,17 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
 function MathNodeComponent({
   nodeKey,
   fontSizePx,
+  fontFamily,
+  fontColor,
+  fontWeight,
+  fontStyle,
 }: {
   nodeKey: string;
   fontSizePx?: number;
+  fontFamily?: string;
+  fontColor?: string;
+  fontWeight?: string;
+  fontStyle?: string;
 }) {
   const [editor] = useLexicalComposerContext();
   const mathEditorRef = useRef<MathEditorAPI>(null);
@@ -154,9 +194,11 @@ function MathNodeComponent({
           );
           mathEditorRef.current.restoreCursorAtStart();
         } else {
-          // Unknown direction, default to start
-          console.log("MathNode: unknown direction, defaulting to start");
-          mathEditorRef.current.restoreCursorAtStart();
+          // No explicit navigation direction: keep whatever position was established
+          // by initial insertion or previous edits.
+          console.log(
+            "MathNode: no navigation direction, preserving existing cursor position"
+          );
         }
 
         // Clear the direction after using it
@@ -197,6 +239,7 @@ function MathNodeComponent({
 
       // Remove cursor from MathEditor so it stops rendering
       if (mathEditorRef.current) {
+        console.log("MathEditor: removeCursor called");
         mathEditorRef.current.removeCursor();
       }
 
@@ -295,11 +338,6 @@ function MathNodeComponent({
   );
 }
 
-// Utility function to get MathEditor API from a MathNode
-export function getMathEditorAPI(nodeKey: string): MathEditorAPI | null {
-  return null; // No longer needed
-}
-
 // Utility functions
 export function $createMathNode(fontSize?: number): MathNode {
   return new MathNode(fontSize);
@@ -315,6 +353,7 @@ export function $isMathNode(
 export const INSERT_MATH_COMMAND = createCommand<{
   replace?: string;
   fontSizePx?: number;
+  fontFamily?: string;
 }>("insertMath");
 export const SET_MATHNODE_FONT_SIZE_COMMAND = createCommand<number>(
   "setMathNodeFontSize"
@@ -347,8 +386,10 @@ export function MathNodePlugin(): null {
             initMathString = payload.replace;
           }
 
-          // Clear the selection in the Lexical editor
-          $setSelection(null);
+          // Select the newly inserted MathNode
+          const nodeSelection = $createNodeSelection();
+          nodeSelection.add(mathNode.getKey());
+          $setSelection(nodeSelection);
         }
       });
       return true;
