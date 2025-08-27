@@ -1,5 +1,6 @@
 
 .editor-container{
+    
     width: 950px;
     height: 1343.5px;
     background-color: white;
@@ -15,6 +16,10 @@
     display: flex;
     justify-content: center; /* center editor-container within expanded frame */    
     outline: 1px solid black;
+    margin-left: 20px;
+    margin-top: 15px;
+    box-shadow: 4px 4px 0 0 rgba(0,0,0,0.25);
+
 
 }
 

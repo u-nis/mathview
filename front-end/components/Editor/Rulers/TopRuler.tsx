@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-interface MarginRulerProps {
+interface TopRulerProps {
   width: number; // total ruler width in px
   minMargin?: number; // minimum margin px
   maxMargin?: number; // maximum margin px (per side)
@@ -12,7 +12,7 @@ interface MarginRulerProps {
   defaultRightMargin?: number;
 }
 
-export default function MarginRuler({
+export default function TopRuler({
   width,
   minMargin = 0,
   maxMargin = 400,
@@ -21,7 +21,7 @@ export default function MarginRuler({
   onChange,
   defaultLeftMargin = 72,
   defaultRightMargin = 72,
-}: MarginRulerProps) {
+}: TopRulerProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef<null | "left" | "right">(null);
   const [localLeft, setLocalLeft] = useState(leftMargin);
@@ -107,10 +107,11 @@ export default function MarginRuler({
 
   // Build ticks and labels similar to Google Docs (96px per inch)
   const DPI = 96; // pixels per inch approximation
-  const ticks: Array<{ x: number; type: "eighth" | "quarter" | "half" | "inch" }>
-    = [];
-  const labels: Array<{ x: number; label: string }>
-    = [];
+  const ticks: Array<{
+    x: number;
+    type: "eighth" | "quarter" | "half" | "inch";
+  }> = [];
+  const labels: Array<{ x: number; label: string }> = [];
   {
     const totalInches = Math.ceil(width / DPI) + 1;
     for (let i = 0; i <= totalInches; i++) {
@@ -137,10 +138,18 @@ export default function MarginRuler({
         {/* tick marks */}
         <div className="ruler-ticks">
           {ticks.map((t, idx) => (
-            <div key={idx} className={`ruler-tick ${t.type}`} style={{ left: t.x }} />
+            <div
+              key={idx}
+              className={`ruler-tick ${t.type}`}
+              style={{ left: t.x }}
+            />
           ))}
           {labels.map((l, idx) => (
-            <div key={`lbl-${idx}`} className="ruler-label" style={{ left: l.x }}>
+            <div
+              key={`lbl-${idx}`}
+              className="ruler-label"
+              style={{ left: l.x }}
+            >
               {l.label}
             </div>
           ))}

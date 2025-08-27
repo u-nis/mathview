@@ -2,51 +2,79 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $getSelection, $isRangeSelection } from "lexical";
 import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
-import { HexColorPicker } from "react-colorful";
-import "../styles.css";
+import { SketchPicker, ColorResult } from "react-color";
+import "../Controls.css";
 
 export default function Highlight() {
-    const [editor] = useLexicalComposerContext();
-    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
-    const [selectedColor, setSelectedColor] = useState('#ffffff');
-    const colorPickerRef = useRef<HTMLDivElement>(null);
+  const [editor] = useLexicalComposerContext();
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("#fff704");
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-          if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
-            setIsColorPickerOpen(false);
-          }
-        };
-    
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-          document.removeEventListener('mousedown', handleClickOutside);
-        };
-      }, []);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(event.target as Node)
+      ) {
+        setIsColorPickerOpen(false);
+      }
+    };
 
-    const onHighlight = (color: string) => { 
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            $patchStyleText(selection, { 'background-color': color });
-          }
-        });
-      };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-    return (
-        <div style={{ display: 'inline-flex' }}>
-        <button className="button" onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}>H</button>
-        {isColorPickerOpen && (
-          <div ref={colorPickerRef} style={{ position: 'absolute', top: '100%', left: '0', background: 'white', border: '1px solid #ccc', borderRadius: '4px', marginTop: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1000, padding: '8px' }}>
-            <HexColorPicker 
-              color={selectedColor} 
-              onChange={(color) => {
-                setSelectedColor(color);
-                onHighlight(color);
-              }} 
-            />
-          </div>
-        )}
-      </div>
-    )
-} 
+  const onHighlight = (color: string) => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        $patchStyleText(selection, { "background-color": color });
+      }
+    });
+  };
+
+  const handleChange = (result: ColorResult) => {
+    const hex = result.hex;
+    setSelectedColor(hex);
+    onHighlight(hex);
+  };
+
+  return (
+    <div style={{ display: "inline-flex", position: "relative" }}>
+      <button
+        className="button"
+        onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
+        style={{ backgroundColor: "#FFF704" }}
+      >
+        H
+      </button>
+      {isColorPickerOpen && (
+        <div
+          ref={colorPickerRef}
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            background: "white",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            marginTop: "4px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            zIndex: 10000,
+            padding: 0,
+          }}
+        >
+          <SketchPicker
+            color={selectedColor}
+            onChange={handleChange}
+            disableAlpha={true}
+            presetColors={[]}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,26 +1,33 @@
 import { Cursor, Node, Row } from '../Types'
 
+/**
+ * Gets the index of a node within its parent's children array
+ */
 export const getIndex = (node: Node): number => {
     if (!node.parent) {
         return 0
     }
 
-    // Find the index of the cursor in its parent's children
     return node.parent.children.findIndex(child => child.id === node.id)
 }
 
-export const insertNode = (node: Node, cursor: Cursor) => {
+/**
+ * Inserts a node at the cursor position
+ */
+export const insertNode = (node: Node, cursor: Cursor): void => {
     const index = getIndex(cursor)
     cursor.parent.children.splice(index, 0, node)
 }
 
-// function to get node to left and right of input node
+/**
+ * Gets the adjacent nodes to the left and right of the given node
+ */
 export const getAdjacentNodes = (node: Node): { left: Node | null, right: Node | null } => {
     if (!node.parent) {
         return { left: null, right: null }
     }
 
-    const index = getIndex(node as Cursor)
+    const index = getIndex(node)
     const children = node.parent.children
 
     return {
@@ -29,7 +36,10 @@ export const getAdjacentNodes = (node: Node): { left: Node | null, right: Node |
     }
 }
 
-export const moveNode = (node: Node, newParent: Row, index: number) => {
+/**
+ * Moves a node to a new parent at the specified index
+ */
+export const moveNode = (node: Node, newParent: Row, index: number): void => {
     // Remove node from its current parent
     if (node.parent) {
         const oldChildren = node.parent.children
@@ -46,8 +56,10 @@ export const moveNode = (node: Node, newParent: Row, index: number) => {
     newParent.children.splice(index, 0, node)
 }
 
-// Helper function to move cursor to a specific node position
-export const moveCursorToNode = (cursor: Cursor, targetNode: Node, setCursor: (cursor: Cursor) => void) => {
+/**
+ * Moves cursor to a specific node position
+ */
+export const moveCursorToNode = (cursor: Cursor, targetNode: Node, setCursor: (cursor: Cursor) => void): void => {
     if (!targetNode.parent || targetNode.parent.type !== 'row') {
         return
     }
