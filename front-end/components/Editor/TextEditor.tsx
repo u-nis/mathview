@@ -63,7 +63,7 @@ export default function Editor() {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number>(0);
-  const [editorWidth, setEditorWidth] = useState<number>(0);
+  const [editorWidth, setEditorWidth] = useState<number>(950);
   const VERTICAL_RULER_OUTSIDE_PX = 29; // matches CSS offset used for vertical rulers
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function Editor() {
 
         <div>
           <div
-            className={styles["editor-frame"]}
+            className={`${styles["editor-frame"]} ${styles.editorFrameAnimateIn}`}
             style={{
               width: editorWidth + 2 * VERTICAL_RULER_OUTSIDE_PX,
             }}
