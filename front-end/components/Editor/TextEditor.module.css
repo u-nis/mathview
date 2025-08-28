@@ -1,7 +1,7 @@
 
 .editor-container{
     
-    width: 950px;
+    width: 961px;
     height: 1343.5px;
     background-color: white;
     color: black;
@@ -16,11 +16,29 @@
     display: flex;
     justify-content: center; /* center editor-container within expanded frame */    
     outline: 1px solid black;
-    margin-left: 20px;
+    margin-left: 50px;
     margin-top: 15px;
     box-shadow: 4px 4px 0 0 rgba(0,0,0,0.25);
 
 
+    
+}
+
+/* One-time grow-from-center animation */
+.editorFrameAnimateIn {
+    transform-origin: center;
+    animation: editorGrowIn 300ms ease-out;
+}
+
+@keyframes editorGrowIn {
+    0% {
+        transform: scaleX(0);
+        opacity: 0.95;
+    }
+    100% {
+        transform: scaleX(1);
+        opacity: 1;
+    }
 }
 
 .editor-content {

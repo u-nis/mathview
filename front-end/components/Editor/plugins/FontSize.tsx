@@ -413,7 +413,13 @@ export default function FontSize() {
 
       <div style={{ display: "flex", alignItems: "center" }}>
         {/* Decrease Button */}
-        <button className="button" onClick={() => applyFontSize(fontSize - 1)}>
+        <button
+          className="button"
+          onClick={() => {
+            const current = parseInt(inputValue) || fontSize;
+            applyFontSize(current - 1);
+          }}
+        >
           -
         </button>
 
@@ -454,7 +460,13 @@ export default function FontSize() {
         </div>
 
         {/* Increase Button */}
-        <button className="button" onClick={() => applyFontSize(fontSize + 1)}>
+        <button
+          className="button"
+          onClick={() => {
+            const current = parseInt(inputValue) || fontSize;
+            applyFontSize(current + 1);
+          }}
+        >
           +
         </button>
       </div>
