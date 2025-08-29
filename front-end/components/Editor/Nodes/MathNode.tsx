@@ -380,14 +380,14 @@ export function MathNodePlugin(): null {
                 const prevSibling = parent.getChildAtIndex(
                   anchorNode.getIndexWithinParent() - 1
                 );
-                if (prevSibling instanceof MathNode) {
+                if ($isMathNode(prevSibling)) {
                   action = { key: prevSibling.getKey(), dir: "left" };
                 }
               }
             } else {
               // Element selection at index: check previous child
               const prevSibling = parent.getChildAtIndex(offset - 1);
-              if (prevSibling instanceof MathNode) {
+              if ($isMathNode(prevSibling)) {
                 action = { key: prevSibling.getKey(), dir: "left" };
               }
             }
@@ -398,14 +398,14 @@ export function MathNodePlugin(): null {
                 const nextSibling = parent.getChildAtIndex(
                   anchorNode.getIndexWithinParent() + 1
                 );
-                if (nextSibling instanceof MathNode) {
+                if ($isMathNode(nextSibling)) {
                   action = { key: nextSibling.getKey(), dir: "right" };
                 }
               }
             } else {
               // Element selection: check next child at offset
               const nextSibling = parent.getChildAtIndex(offset);
-              if (nextSibling instanceof MathNode) {
+              if ($isMathNode(nextSibling)) {
                 action = { key: nextSibling.getKey(), dir: "right" };
               }
             }
@@ -430,8 +430,7 @@ export function MathNodePlugin(): null {
             const nodeSelection = $createNodeSelection();
             nodeSelection.add(action!.key);
             $setSelection(nodeSelection);
-            // Publish navigation event with direction
-            mathViewEventBus.publishNodeSelected(action!.key, action!.dir);
+            // Publish occurs in the node's isSelected effect
           });
           handled = true;
         }
@@ -451,6 +450,7 @@ export function MathNodePlugin(): null {
         deleteMathString(editor, payload.replace);
       }
 
+      let createdNodeKey: string | null = null;
       editor.update(() => {
         const mathNode = $createMathNode(payload?.fontSizePx);
         const selection = $getSelection();
@@ -462,14 +462,19 @@ export function MathNodePlugin(): null {
             initMathStringByNode.set(mathNode.getKey(), payload.replace);
           }
 
-          // Publish node creation event - MathEditor will handle cursor placement
-          mathViewEventBus.publishNodeCreated(mathNode.getKey());
           // Select the newly inserted MathNode
           const nodeSelection = $createNodeSelection();
           nodeSelection.add(mathNode.getKey());
           $setSelection(nodeSelection);
+
+          // Defer event publish until after update
+          createdNodeKey = mathNode.getKey();
         }
       });
+      if (createdNodeKey) {
+        // Publish node creation event - MathEditor will handle cursor placement
+        mathViewEventBus.publishNodeCreated(createdNodeKey);
+      }
       return true;
     },
     COMMAND_PRIORITY_LOW

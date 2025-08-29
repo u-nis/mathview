@@ -196,9 +196,11 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
       const unsubscribeCursorEnd = mathViewEventBus.subscribe(
         MathViewEventType.CURSOR_PLACE_AT_END,
         (event) => {
-          if (event.nodeKey === nodeKey && rootRef.current && cursor) {
-            moveNode(cursor, rootRef.current, rootRef.current.children.length);
-            setCursor({ ...cursor });
+          const currentRoot = latestRootRef.current;
+          const currentCursor = latestCursorRef.current;
+          if (event.nodeKey === nodeKey && currentRoot && currentCursor) {
+            moveNode(currentCursor, currentRoot, currentRoot.children.length);
+            setCursor({ ...currentCursor });
             inputRef.current?.focus();
           }
         }
@@ -207,9 +209,11 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
       const unsubscribeCursorStart = mathViewEventBus.subscribe(
         MathViewEventType.CURSOR_PLACE_AT_START,
         (event) => {
-          if (event.nodeKey === nodeKey && rootRef.current && cursor) {
-            moveNode(cursor, rootRef.current, 0);
-            setCursor({ ...cursor });
+          const currentRoot = latestRootRef.current;
+          const currentCursor = latestCursorRef.current;
+          if (event.nodeKey === nodeKey && currentRoot && currentCursor) {
+            moveNode(currentCursor, currentRoot, 0);
+            setCursor({ ...currentCursor });
             inputRef.current?.focus();
           }
         }
@@ -218,10 +222,12 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
       const unsubscribeNodeCreated = mathViewEventBus.subscribe(
         MathViewEventType.NODE_CREATED,
         (event) => {
-          if (event.nodeKey === nodeKey && rootRef.current && cursor) {
+          const currentRoot = latestRootRef.current;
+          const currentCursor = latestCursorRef.current;
+          if (event.nodeKey === nodeKey && currentRoot && currentCursor) {
             // When a node is created, place cursor at the end
-            moveNode(cursor, rootRef.current, rootRef.current.children.length);
-            setCursor({ ...cursor });
+            moveNode(currentCursor, currentRoot, currentRoot.children.length);
+            setCursor({ ...currentCursor });
             inputRef.current?.focus();
           }
         }
