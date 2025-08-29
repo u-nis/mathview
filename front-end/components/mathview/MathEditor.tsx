@@ -14,6 +14,7 @@ import { moveNode, moveCursorToNode } from "./core/utils";
 import styles from "./MathEditor.module.css";
 import { MATH_EDITOR_CONSTANTS } from "./core/constants";
 import { mathViewEventBus, MathViewEventType } from "./core/events";
+import { useFontSize } from "../Editor/FontSizeContext";
 
 // ID generator for unique node identification
 let id = 0;
@@ -43,6 +44,7 @@ export interface MathEditorAPI {
 
 const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
   ({ config = {}, nodeKey, onExitLeft, onExitRight }, ref) => {
+    const { fontSize } = useFontSize();
     const rootRef = useRef<Row | null>(null);
     const [cursor, setCursor] = useState<Cursor | null>(null);
     const inputRef = useRef<HTMLDivElement>(null);
@@ -64,11 +66,11 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
 
     // Default configuration
     const defaultConfig: MathViewConfig = {
-      fontFamily: "Times New Roman, serif",
-      fontSize: `${MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE}px`,
-      fontColor: "#000000",
-      backgroundColor: "transparent",
-      cursorColor: "#000000",
+      fontFamily: MATH_EDITOR_CONSTANTS.DEFAULT_FONT_FAMILY,
+      fontSize: `${fontSize}px`,
+      fontColor: MATH_EDITOR_CONSTANTS.DEFAULT_FONT_COLOR,
+      backgroundColor: MATH_EDITOR_CONSTANTS.DEFAULT_BACKGROUND_COLOR,
+      cursorColor: MATH_EDITOR_CONSTANTS.DEFAULT_CURSOR_COLOR,
       ...config,
     };
 
@@ -91,10 +93,9 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
       setCursor(newCursor);
       root.children = [newCursor];
 
-      // Mark as initialized and publish creation event
+      // Mark as initialized (NODE_CREATED is emitted by MathNode.tsx)
       if (nodeKey && !isInitializedRef.current) {
         isInitializedRef.current = true;
-        mathViewEventBus.publishNodeCreated(nodeKey);
       }
     }
 
@@ -104,7 +105,7 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
       () => ({
         insert: (symbol: string) => {
           if (cursor) {
-            handleInput(symbol, cursor, setCursor);
+            handleInput(symbol, cursor, setCursor, {});
           }
         },
         focus: () => {

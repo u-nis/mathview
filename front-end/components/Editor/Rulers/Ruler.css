@@ -43,6 +43,8 @@
   font-family: "Helvetica", monospace;
   font-size: 8px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 
@@ -55,6 +57,9 @@
   height: 100%;
   cursor: ew-resize;
   pointer-events: auto;
+  /* Allow vertical page scroll but prevent horizontal swipe while dragging */
+  -ms-touch-action: pan-y;
+  touch-action: pan-y;
 }
 .ruler-handle.left::after,
 .ruler-handle.right::after {
@@ -147,6 +152,9 @@
   padding: 0;
   cursor: ns-resize; /* ensure handle captures events */
   top: var(--handle-top, 0px);
+  /* Allow vertical page scroll but prevent horizontal swipe while dragging */
+  -ms-touch-action: pan-y;
+  touch-action: pan-y;
 }
 .vertical-handle::after {
   content: "";

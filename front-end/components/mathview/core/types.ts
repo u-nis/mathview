@@ -4,7 +4,7 @@ export type BaseNode = {
   type: "symbol" | "row" | "fraction" | "cursor" | "exponent";
 };
 
-export interface Symbol extends BaseNode {
+export interface MathSymbol extends BaseNode {
   type: "symbol";
   value: string;
   parent: Row;
@@ -36,7 +36,7 @@ export interface Cursor extends BaseNode {
   root: Row;
 }
 
-export type Node = Symbol | Row | Fraction | Exponent | Cursor;
+export type Node = MathSymbol | Row | Fraction | Exponent | Cursor;
 
 // Configuration types
 export interface MathViewConfig {

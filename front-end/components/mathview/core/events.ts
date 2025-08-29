@@ -4,8 +4,8 @@ export enum MathViewEventType {
   CURSOR_PLACE_AT_END = 'cursor-place-at-end',
   CURSOR_PLACE_AFTER_NODE = 'cursor-place-after-node',
   CURSOR_PLACE_BEFORE_NODE = 'cursor-place-before-node',
-  NAVIGATE_LEFT = 'navigate-left',
-  NAVIGATE_RIGHT = 'navigate-right',
+  NAVIGATE_LEFT = 'math-navigate-left',
+  NAVIGATE_RIGHT = 'math-navigate-right',
   NODE_CREATED = 'node-created',
   NODE_SELECTED = 'node-selected',
 }
@@ -39,14 +39,15 @@ class MathViewEventBus {
 
   publish(event: MathViewEvent): void {
     const eventListeners = this.listeners.get(event.type);
-    if (eventListeners) {
-      eventListeners.forEach(callback => {
-        try {
-          callback(event);
-        } catch (error) {
-          console.error('Error in MathView event listener:', error);
-        }
-      });
+    if (!eventListeners || eventListeners.size === 0) return;
+    // Copy to snapshot so listeners can unsubscribe safely during dispatch
+    const snapshot = Array.from(eventListeners);
+    for (const callback of snapshot) {
+      try {
+        callback(event);
+      } catch (error) {
+        console.error('Error in MathView event listener:', error);
+      }
     }
   }
 

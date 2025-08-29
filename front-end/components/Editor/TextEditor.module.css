@@ -29,6 +29,11 @@
     transform-origin: center;
     animation: editorGrowIn 300ms ease-out;
 }
+@media (prefers-reduced-motion: reduce) {
+    .editorFrameAnimateIn {
+        animation: none !important;
+    }
+}
 
 @keyframes editorGrowIn {
     0% {
