@@ -120,7 +120,21 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
   }
 }
 
-// React component wrapper for the MathEditor
+/**
+ * React wrapper that renders an embedded MathEditor for a MathNode and wires selection, font, focus, and navigation behavior.
+ *
+ * When this component becomes selected it:
+ * - Infers entry direction from a captured cursor position (if available) and publishes a NodeSelected event.
+ * - Focuses the embedded MathEditor.
+ *
+ * Runtime behaviors:
+ * - On mount, if a global `initMathString` is set it inserts that string into the MathEditor once and focuses the editor.
+ * - Listens for the `"mathnode-apply-font-size"` CustomEvent and applies the provided px value to the embedded MathEditor when this node is selected.
+ * - Exposes exitLeft and exitRight callbacks to move the Lexical selection out of the MathNode to the adjacent text or element sibling.
+ *
+ * @param nodeKey - The Lexical node key for the MathNode instance rendered by this component.
+ * @param fontSizePx - Optional font size (in pixels) passed to the MathEditor config to initialize its rendering size.
+ */
 function MathNodeComponent({
   nodeKey,
   fontSizePx,
@@ -342,7 +356,19 @@ export const SET_MATHNODE_FONT_SIZE_COMMAND = createCommand<number>(
   "setMathNodeFontSize"
 );
 
-// Plugin to register the command
+/**
+ * Registers MathNode-related editor behavior: keyboard navigation, insertion, and font-size commands.
+ *
+ * Sets up:
+ * - ArrowLeft/ArrowRight handling to detect caret crossings into MathNode instances, capture the previous caret position, switch selection to the target MathNode, and publish a NodeSelected event with direction.
+ * - INSERT_MATH_COMMAND to optionally delete a replacement string, insert a MathNode (optionally preloading content), publish a NodeCreated event, and select the new node.
+ * - SET_MATHNODE_FONT_SIZE_COMMAND to update the font size on selected MathNode instances.
+ *
+ * This plugin performs editor-side registrations and has no rendered output.
+ *
+ * @throws Error If the editor does not have MathNode registered.
+ * @returns null
+ */
 export function MathNodePlugin(): null {
   const [editor] = useLexicalComposerContext();
 

@@ -14,6 +14,23 @@ const DEFAULT_FONT_SIZE = MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE;
 const DRAG_SENSITIVITY = 5;
 const EDGE_WIDTH = 10;
 
+/**
+ * UI control for viewing and editing the current font size used by the editor.
+ *
+ * Renders a compact control with decrease/increase buttons, a focusable editable area
+ * that supports typing, selection, keyboard navigation, drag-to-resize on the left/right
+ * edges, and click/double-click behaviors. Changes are clamped to [4, 72] and propagated
+ * to:
+ *  - the font-size context (setFontSize),
+ *  - the Lexical editor (patches selected text's `font-size` when a range is selected),
+ *  - selected MathNode(s) via SET_MATHNODE_FONT_SIZE_COMMAND,
+ *  - a DOM CustomEvent `"mathnode-apply-font-size"` with detail { px } for external listeners.
+ *
+ * Keyboard interactions while editing include Enter (commit), Escape (cancel), digit input,
+ * Backspace/Delete, arrow/Home/End navigation with Shift for selection, and Ctrl/Cmd+A to
+ * select all. Clicking the edges (10px) begins drag-resize; clicking the body focuses and
+ * positions the caret (or selects all on initial focus); double-click selects all.
+ */
 export default function FontSize() {
   const [editor] = useLexicalComposerContext();
   const { fontSize, setFontSize } = useFontSize();

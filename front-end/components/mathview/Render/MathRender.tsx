@@ -29,6 +29,23 @@ const isDigitSymbol = (n: Node | null | undefined): boolean => {
   return !!(n && n.type === "symbol" && /^[0-9]$/.test((n as Symbol).value));
 };
 
+/**
+ * Render a Row node as an inline math row, including optional cursor visuals and per-item spacing.
+ *
+ * Renders the non-cursor children of `row` in sequence, skipping nodes of type `"cursor"`.
+ * Adjacent symbol spacing is added (0.22em) except between two digit symbols. If `showCursor`
+ * is true the component renders caret indicators:
+ * - a leading caret when the row starts with a cursor,
+ * - a caret after an item when the next child is a cursor,
+ * - a zero-width space when the row contains only a leading cursor so the absolute caret has vertical space.
+ *
+ * @param row - The Row node to render.
+ * @param depth - Current nesting depth (used to size/position nested structures).
+ * @param config - Math view configuration (used for cursor color and other visual settings).
+ * @param showCursor - Whether cursor visuals (carets) should be rendered.
+ * @param onNodeClick - Optional callback invoked with a Node when a rendered node is clicked.
+ * @returns A React element (span) containing the rendered row.
+ */
 function RenderRow({
   row,
   depth,
