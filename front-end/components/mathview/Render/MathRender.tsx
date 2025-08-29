@@ -8,8 +8,8 @@ import type {
   MathViewConfig,
   Node,
   Row,
-  Symbol,
-} from "../Types";
+  MathSymbol,
+} from "../core/types";
 
 interface MathRenderProps {
   cursor: Cursor | null;
@@ -21,12 +21,16 @@ interface MathRenderProps {
 // We prefer relative scaling with em for compounding (fractions/exponents)
 
 const isRow = (n: Node): n is Row => n.type === "row";
-const isSymbol = (n: Node): n is Symbol => n.type === "symbol";
+const isSymbol = (n: Node): n is MathSymbol => n.type === "symbol";
 const isFraction = (n: Node): n is Fraction => n.type === "fraction";
 const isExponent = (n: Node): n is Exponent => n.type === "exponent";
 
 const isDigitSymbol = (n: Node | null | undefined): boolean => {
-  return !!(n && n.type === "symbol" && /^[0-9]$/.test((n as Symbol).value));
+  return !!(
+    n &&
+    n.type === "symbol" &&
+    /^[0-9]$/.test((n as MathSymbol).value)
+  );
 };
 
 function RenderRow({
@@ -45,6 +49,7 @@ function RenderRow({
   const children = row.children;
 
   const hasLeadingCursor = children[0]?.type === "cursor";
+  const onlyCursorInRow = hasLeadingCursor && children.length === 1;
 
   const elements = [] as React.ReactNode[];
   for (let i = 0; i < children.length; i++) {
@@ -104,6 +109,11 @@ function RenderRow({
             className={styles.caretStart}
             style={{ backgroundColor: config.cursorColor }}
           />
+        )}
+        {showCursor && onlyCursorInRow && (
+          // Ensure empty rows (e.g., empty denominator) have a line box height
+          // so the absolute caret has vertical space to render
+          <span aria-hidden>{"\u200b"}</span>
         )}
         {elements}
       </span>
@@ -271,8 +281,8 @@ const MathRender: React.FC<MathRenderProps> = ({
   showCursor,
   onNodeClick,
 }) => {
-  if (!cursor || !cursor.root || cursor.root.type !== "row") return null;
-  const rootRow = cursor.root as Row;
+  if (!cursor || !cursor.root) return null;
+  const rootRow = cursor.root;
 
   return (
     <span className={styles.root}>

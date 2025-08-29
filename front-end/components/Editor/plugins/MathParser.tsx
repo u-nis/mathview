@@ -22,7 +22,6 @@ export function MathParserPlugin() {
           const matches = text.match(mathRegex);
 
           if (matches && matches.length > 0) {
-            console.log("Math detected:", matches);
             editor.dispatchCommand(INSERT_MATH_COMMAND, {
               replace: matches[0],
               fontSizePx: fontSize,

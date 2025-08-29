@@ -5,13 +5,14 @@ import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
 import "../Controls.css";
 import { useFontSize } from "../FontSizeContext";
+import { MATH_EDITOR_CONSTANTS } from "../../mathview/core/constants";
 
 // Constants
 const MIN_FONT_SIZE = 4;
 const MAX_FONT_SIZE = 72;
-const DEFAULT_FONT_SIZE = 12;
+const DEFAULT_FONT_SIZE = MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE;
 const DRAG_SENSITIVITY = 5;
-const EDGE_WIDTH = 8;
+const EDGE_WIDTH = 10;
 
 export default function FontSize() {
   const [editor] = useLexicalComposerContext();
@@ -153,8 +154,11 @@ export default function FontSize() {
 
     switch (e.key) {
       case "Enter":
-        const newSize = parseInt(inputValue) || DEFAULT_FONT_SIZE;
-        applyFontSize(newSize);
+        {
+          const parsed = Number.parseInt(inputValue, 10);
+          const newSize = Number.isNaN(parsed) ? DEFAULT_FONT_SIZE : parsed;
+          applyFontSize(newSize);
+        }
         setIsEditing(false);
         setSelectionStart(0);
         setSelectionEnd(0);
@@ -413,7 +417,14 @@ export default function FontSize() {
 
       <div style={{ display: "flex", alignItems: "center" }}>
         {/* Decrease Button */}
-        <button className="button" onClick={() => applyFontSize(fontSize - 1)}>
+        <button
+          className="button"
+          onClick={() => {
+            const parsed = Number.parseInt(inputValue, 10);
+            const current = Number.isNaN(parsed) ? fontSize : parsed;
+            applyFontSize(current - 1);
+          }}
+        >
           -
         </button>
 
@@ -446,7 +457,7 @@ export default function FontSize() {
             style={{
               position: "absolute",
               left: "-9999px",
-              fontSize: "16px",
+              fontSize: `${fontSize}px`,
               fontFamily: "monospace",
               whiteSpace: "pre",
             }}
@@ -454,7 +465,14 @@ export default function FontSize() {
         </div>
 
         {/* Increase Button */}
-        <button className="button" onClick={() => applyFontSize(fontSize + 1)}>
+        <button
+          className="button"
+          onClick={() => {
+            const parsed = Number.parseInt(inputValue, 10);
+            const current = Number.isNaN(parsed) ? fontSize : parsed;
+            applyFontSize(current + 1);
+          }}
+        >
           +
         </button>
       </div>
