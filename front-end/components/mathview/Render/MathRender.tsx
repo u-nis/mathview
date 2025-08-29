@@ -8,7 +8,7 @@ import type {
   MathViewConfig,
   Node,
   Row,
-  Symbol,
+  MathSymbol,
 } from "../core/types";
 
 interface MathRenderProps {
@@ -21,12 +21,16 @@ interface MathRenderProps {
 // We prefer relative scaling with em for compounding (fractions/exponents)
 
 const isRow = (n: Node): n is Row => n.type === "row";
-const isSymbol = (n: Node): n is Symbol => n.type === "symbol";
+const isSymbol = (n: Node): n is MathSymbol => n.type === "symbol";
 const isFraction = (n: Node): n is Fraction => n.type === "fraction";
 const isExponent = (n: Node): n is Exponent => n.type === "exponent";
 
 const isDigitSymbol = (n: Node | null | undefined): boolean => {
-  return !!(n && n.type === "symbol" && /^[0-9]$/.test((n as Symbol).value));
+  return !!(
+    n &&
+    n.type === "symbol" &&
+    /^[0-9]$/.test((n as MathSymbol).value)
+  );
 };
 
 function RenderRow({
