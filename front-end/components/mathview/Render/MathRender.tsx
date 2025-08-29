@@ -45,6 +45,7 @@ function RenderRow({
   const children = row.children;
 
   const hasLeadingCursor = children[0]?.type === "cursor";
+  const onlyCursorInRow = hasLeadingCursor && children.length === 1;
 
   const elements = [] as React.ReactNode[];
   for (let i = 0; i < children.length; i++) {
@@ -104,6 +105,11 @@ function RenderRow({
             className={styles.caretStart}
             style={{ backgroundColor: config.cursorColor }}
           />
+        )}
+        {showCursor && onlyCursorInRow && (
+          // Ensure empty rows (e.g., empty denominator) have a line box height
+          // so the absolute caret has vertical space to render
+          <span aria-hidden>{"\u200b"}</span>
         )}
         {elements}
       </span>
