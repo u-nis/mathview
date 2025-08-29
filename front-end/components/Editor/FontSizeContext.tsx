@@ -11,6 +11,16 @@ const FontSizeContext = createContext<FontSizeContextType | undefined>(
   undefined
 );
 
+/**
+ * Provides font size state to descendant components via React context.
+ *
+ * The provider initializes `fontSize` from `MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE`
+ * and supplies `{ fontSize, setFontSize }` through `FontSizeContext` so consumers
+ * can read and update the current font size.
+ *
+ * @param children - React nodes that will have access to the font size context
+ * @returns A context provider wrapping `children`
+ */
 export function FontSizeProvider({ children }: { children: React.ReactNode }) {
   const [fontSize, setFontSize] = useState(
     MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE

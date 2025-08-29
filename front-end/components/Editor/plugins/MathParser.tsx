@@ -4,6 +4,13 @@ import { $getRoot, $getSelection, $isRangeSelection } from "lexical";
 import { INSERT_MATH_COMMAND } from "../Nodes/MathNode";
 import { useFontSize } from "../FontSizeContext";
 
+/**
+ * React plugin that detects incomplete inline mathematical expressions and dispatches a command to insert a math node.
+ *
+ * Registers an editor update listener that scans the document text for trailing math-like tokens (alphanumeric sequence followed by an operator, e.g. `a+`, `6^`, `f=`). When a match is found the plugin dispatches INSERT_MATH_COMMAND with the first match as `replace` and the current `fontSize` (in pixels) as `fontSizePx`. The listener is cleaned up when the component unmounts or dependencies change.
+ *
+ * This component has no UI (returns null) and relies on the Lexical editor context and font-size context for behavior.
+ */
 export function MathParserPlugin() {
   const [editor] = useLexicalComposerContext();
   const { fontSize } = useFontSize();

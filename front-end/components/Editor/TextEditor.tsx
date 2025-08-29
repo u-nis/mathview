@@ -49,6 +49,21 @@ function TreeViewWrapper() {
   return <TreeView editor={editor} />;
 }
 
+/**
+ * Renders a configurable Lexical-based rich text editor with rulers, plugins, and a live tree view.
+ *
+ * This component composes the editor UI and behavior:
+ * - Initializes Lexical with a theme, error handler, and custom nodes (headings, lists, banners, math).
+ * - Provides font-size context and sync plugins, math parsing, list/history/banner support, and a rich text editable area.
+ * - Renders interactive rulers (top, left, right) that control horizontal padding and top margin; ruler changes update local state.
+ * - Measures layout using ResizeObserver to keep the content height and editor width in sync for rulers and layout calculations.
+ * - Includes a toolbar and a TreeView showing the editor document structure.
+ *
+ * Side effects:
+ * - Registers a ResizeObserver on mount to update content and container measurements and disconnects it on unmount.
+ *
+ * @returns A React element containing the fully configured editor and associated UI (rulers, toolbar, tree view).
+ */
 export default function Editor() {
   const initialConfig = {
     namespace: "MyEditor",
