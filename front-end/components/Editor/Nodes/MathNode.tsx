@@ -33,7 +33,8 @@ export type SerializedMathNode = SerializedLexicalNode & {
   fontStyle?: string;
 };
 
-let initMathString = "";
+// Per-node initial math strings to avoid global leakage across instances
+const initMathStringByNode: Map<string, string> = new Map();
 // Track the last cursor position before entering a MathNode
 const lastCursorPosition: Map<string, { nodeKey: string; offset: number }> =
   new Map();
@@ -61,7 +62,11 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
 
   static importJSON(serializedNode: SerializedMathNode): MathNode {
     return new MathNode(
-      serializedNode.fontSize ?? MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE
+      serializedNode.fontSize ?? MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE,
+      serializedNode.fontFamily ?? "Times New Roman",
+      serializedNode.fontColor ?? "black",
+      serializedNode.fontWeight ?? "normal",
+      serializedNode.fontStyle ?? "normal"
     );
   }
 
@@ -196,10 +201,10 @@ function MathNodeComponent({
           }
 
           // Publish selection event with inferred direction
-          // Publish selection event with inferred direction
           mathViewEventBus.publishNodeSelected(nodeKey, inferredDirection);
-          mathEditorRef.current!.focus();
         });
+        // Focus after Lexical state update to avoid nested update issues
+        mathEditorRef.current?.focus();
       }
     }
   }, [isSelected, editor, nodeKey]);
@@ -277,13 +282,15 @@ function MathNodeComponent({
 
   // Effect to insert the detected math string when the component mounts
   useEffect(() => {
-    if (initMathString && mathEditorRef.current && !hasInsertedRef.current) {
+    const init = initMathStringByNode.get(nodeKey);
+    if (init && mathEditorRef.current && !hasInsertedRef.current) {
       // Insert each character from the detected math string
-      for (let i = 0; i < initMathString.length; i++) {
-        mathEditorRef.current.insert(initMathString[i]);
+      for (let i = 0; i < init.length; i++) {
+        mathEditorRef.current.insert(init[i]);
       }
-
+      // Mark inserted and clear to prevent reuse on future mounts
       hasInsertedRef.current = true;
+      initMathStringByNode.delete(nodeKey);
     }
 
     // Always focus the MathEditor when component mounts
@@ -450,9 +457,9 @@ export function MathNodePlugin(): null {
         if (selection) {
           selection.insertNodes([mathNode]);
 
-          // Set the global variable for the MathNodeComponent to use
+          // Register initial math string for this specific node key
           if (payload?.replace) {
-            initMathString = payload.replace;
+            initMathStringByNode.set(mathNode.getKey(), payload.replace);
           }
 
           // Publish node creation event - MathEditor will handle cursor placement

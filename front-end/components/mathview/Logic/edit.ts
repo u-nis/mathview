@@ -1,4 +1,4 @@
-import { Cursor, Exponent, Fraction, Row, Symbol } from '../core/types'
+import { Cursor, Exponent, Fraction, Row, MathSymbol } from '../core/types'
 import { getAdjacentNodes, getIndex, insertNode, moveNode, createId } from '../core/utils'
 
 
@@ -7,7 +7,7 @@ import { getAdjacentNodes, getIndex, insertNode, moveNode, createId } from '../c
  * Inserts a symbol at the cursor position
  */
 export const insertSymbol = (input: string, cursor: Cursor): void => {
-    const symbolNode: Symbol = {
+    const symbolNode: MathSymbol = {
         type: 'symbol',
         value: input,
         parent: cursor.parent,
@@ -83,7 +83,7 @@ export const insertFraction = (cursor: Cursor): void => {
         const siblings = cursor.parent.children
 
         // Collect indices of consecutive number nodes to the left
-        const numbers: Symbol[] = []
+        const numbers: MathSymbol[] = []
         while (leftIndex >= 0) {
             const node = siblings[leftIndex]
             if (node.type === 'symbol' && typeof node.value === 'string' && /^[0-9]$/.test(node.value)) {

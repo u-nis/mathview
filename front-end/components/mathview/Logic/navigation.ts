@@ -20,7 +20,7 @@ export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void, ex
             cursor.parent.children.splice(currentIndex + 1, 1)
             setCursor({ ...cursor })
         }
-    } else if (cursor.parent.id === 'root' && left === null) {
+    } else if ((cursor.parent === cursor.root || cursor.parent.parent === null) && left === null) {
         // At the leftmost boundary of the root node: exit to host editor
         exits?.onExitLeft?.()
     } else if (cursor.parent.parent?.type === 'fraction') {
@@ -47,7 +47,7 @@ export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void, e
             cursor.parent.children.splice(currentIndex, 1)
             setCursor({ ...cursor })
         }
-    } else if (cursor.parent.id === 'root' && right === null) {
+    } else if ((cursor.parent === cursor.root || cursor.parent.parent === null) && right === null) {
         // At the rightmost boundary of the root node: exit to host editor
         exits?.onExitRight?.()
     } else if (cursor.parent.parent?.type === 'fraction') {

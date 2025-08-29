@@ -154,8 +154,11 @@ export default function FontSize() {
 
     switch (e.key) {
       case "Enter":
-        const newSize = parseInt(inputValue) || DEFAULT_FONT_SIZE;
-        applyFontSize(newSize);
+        {
+          const parsed = Number.parseInt(inputValue, 10);
+          const newSize = Number.isNaN(parsed) ? DEFAULT_FONT_SIZE : parsed;
+          applyFontSize(newSize);
+        }
         setIsEditing(false);
         setSelectionStart(0);
         setSelectionEnd(0);
@@ -417,7 +420,8 @@ export default function FontSize() {
         <button
           className="button"
           onClick={() => {
-            const current = parseInt(inputValue) || fontSize;
+            const parsed = Number.parseInt(inputValue, 10);
+            const current = Number.isNaN(parsed) ? fontSize : parsed;
             applyFontSize(current - 1);
           }}
         >
@@ -453,7 +457,7 @@ export default function FontSize() {
             style={{
               position: "absolute",
               left: "-9999px",
-              fontSize: "16px",
+              fontSize: `${fontSize}px`,
               fontFamily: "monospace",
               whiteSpace: "pre",
             }}
@@ -464,7 +468,8 @@ export default function FontSize() {
         <button
           className="button"
           onClick={() => {
-            const current = parseInt(inputValue) || fontSize;
+            const parsed = Number.parseInt(inputValue, 10);
+            const current = Number.isNaN(parsed) ? fontSize : parsed;
             applyFontSize(current + 1);
           }}
         >
