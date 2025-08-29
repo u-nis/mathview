@@ -1,6 +1,5 @@
-import { Cursor, Exponent, Fraction, Row, Symbol } from '../Types'
-import { getAdjacentNodes, getIndex, insertNode, moveNode } from './helperFunctions'
-import { createId } from '../MathEditor'
+import { Cursor, Exponent, Fraction, Row, Symbol } from '../core/types'
+import { getAdjacentNodes, getIndex, insertNode, moveNode, createId } from '../core/utils'
 
 
 // Handle basic symbol insertion (+, -, *, /)
@@ -15,7 +14,6 @@ export const insertSymbol = (input: string, cursor: Cursor): void => {
         id: createId()
     }
 
-    console.log('Inserting symbol:', input, symbolNode.id)
     insertNode(symbolNode, cursor)
 }
 
@@ -97,7 +95,6 @@ export const insertFraction = (cursor: Cursor): void => {
         }
 
         // Move each number node into the numerator node
-        console.log('Number indices:', numbers)
         for (let i = 0; i < numbers.length; i++) {
             const numberNode = numbers[i]
             moveNode(numberNode, numeratorNode, numeratorNode.children.length)
@@ -106,7 +103,6 @@ export const insertFraction = (cursor: Cursor): void => {
         moveNode(fractionNode, cursor.parent, cursorIndex)
         moveNode(cursor, denominatorNode, 0)
     } else if (left.type === 'fraction') {
-        console.log('Left is a fraction')
         moveNode(fractionNode, cursor.parent, cursorIndex)
         moveNode(left, numeratorNode, 0)
         moveNode(cursor, denominatorNode, 0)
@@ -118,5 +114,4 @@ export const insertFraction = (cursor: Cursor): void => {
 
 export const deleteAtCursor = (cursor: Cursor): void => {
     // TODO: Implement deletion logic
-    console.log('Deleting at cursor')
 }
