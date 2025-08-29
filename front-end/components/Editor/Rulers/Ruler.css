@@ -5,6 +5,14 @@
   width: 100%;
 }
 
+@media (max-width: 640px) {
+  /* Hide rulers on very small screens to avoid horizontal overflow */
+  .editor-margin-ruler,
+  .vertical-ruler {
+    display: none !important;
+  }
+}
+
 /* Ruler track */
 .ruler-track {
   position: relative;

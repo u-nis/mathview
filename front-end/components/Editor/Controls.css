@@ -11,7 +11,9 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  border-radius: 0;
+  border-bottom: 1px solid #CECECE;
+  /* Overlap toolbar bottom border so it looks like a single line when not wrapped */
+  margin-bottom: -1px;
 }
 .button:hover {
   background: #eaeaea;
@@ -33,6 +35,9 @@
   justify-content: left;
   cursor: pointer;
   font-size: 11px;
+  border-bottom: 1px solid #CECECE;
+  /* Align with toolbar bottom border as above */
+  margin-bottom: -1px;
 }
 .dropdown:hover {
   background: #eaeaea;
@@ -70,6 +75,8 @@
   overflow: hidden;
   font-size: 12px;
   font-family: monospace;
+  border-bottom: 1px solid #CECECE;
+  margin-bottom: -1px;
 }
 
 /* Remove prior icon-specific sizing */

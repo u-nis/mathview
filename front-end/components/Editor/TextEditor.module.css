@@ -91,3 +91,24 @@
     border: 1px solid #e5e5e5;
     padding: 8px 12px;
 }
+
+/* Responsive tweaks for small screens */
+@media (max-width: 640px) {
+    .editor-frame {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100vw !important; /* exactly match viewport width */
+    }
+
+    .editor-container{
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        min-height: 70vh;
+    }
+
+    .treeview-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+}

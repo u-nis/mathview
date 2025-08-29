@@ -9,6 +9,13 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 640px) {
+  .toolbar {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 .toolbar-group {
   display: flex;
 
