@@ -9,7 +9,7 @@ import type {
   Node,
   Row,
   Symbol,
-} from "../Types";
+} from "../core/types";
 
 interface MathRenderProps {
   cursor: Cursor | null;
@@ -271,8 +271,8 @@ const MathRender: React.FC<MathRenderProps> = ({
   showCursor,
   onNodeClick,
 }) => {
-  if (!cursor || !cursor.root || cursor.root.type !== "row") return null;
-  const rootRow = cursor.root as Row;
+  if (!cursor || !cursor.root) return null;
+  const rootRow = cursor.root;
 
   return (
     <span className={styles.root}>

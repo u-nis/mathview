@@ -1,10 +1,12 @@
-import { Cursor } from '../Types'
-import { getAdjacentNodes, getIndex, moveNode } from './helperFunctions'
+import { Cursor } from '../core/types'
+import { getAdjacentNodes, getIndex, moveNode } from '../core/utils'
 
 /**
  * Moves cursor to the left
  */
-export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void): void => {
+import { ExitCallbacks } from '../core/types'
+
+export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void, exits?: ExitCallbacks): void => {
     const currentIndex = getIndex(cursor)
     const left = getAdjacentNodes(cursor).left;
     
@@ -19,11 +21,8 @@ export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void): v
             setCursor({ ...cursor })
         }
     } else if (cursor.parent.id === 'root' && left === null) {
-        // At the leftmost boundary of the root node
-        const event = new CustomEvent('math-navigate-left', {
-            detail: { nodeKey: (window as any).currentMathNodeKey }
-        });
-        document.dispatchEvent(event);
+        // At the leftmost boundary of the root node: exit to host editor
+        exits?.onExitLeft?.()
     } else if (cursor.parent.parent?.type === 'fraction') {
         const fracIndex = getIndex(cursor.parent.parent);
         moveNode(cursor, cursor.parent.parent.parent!, fracIndex - 1);
@@ -34,7 +33,7 @@ export const moveLeft = (cursor: Cursor, setCursor: (cursor: Cursor) => void): v
 /**
  * Moves cursor to the right
  */
-export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void): void => {
+export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void, exits?: ExitCallbacks): void => {
     const currentIndex = getIndex(cursor);
     const right = getAdjacentNodes(cursor).right;
     
@@ -49,11 +48,8 @@ export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void): 
             setCursor({ ...cursor })
         }
     } else if (cursor.parent.id === 'root' && right === null) {
-        // At the rightmost boundary of the root node
-        const event = new CustomEvent('math-navigate-right', {
-            detail: { nodeKey: (window as any).currentMathNodeKey }
-        });
-        document.dispatchEvent(event);
+        // At the rightmost boundary of the root node: exit to host editor
+        exits?.onExitRight?.()
     } else if (cursor.parent.parent?.type === 'fraction') {
         // At the end of the fraction, move to the parent
         const fracIndex = getIndex(cursor.parent.parent);
@@ -64,10 +60,8 @@ export const moveRight = (cursor: Cursor, setCursor: (cursor: Cursor) => void): 
 
 export const moveUp = (cursor: Cursor, setCursor: (cursor: Cursor) => void): void => {
     // TODO: Implement vertical navigation
-    console.log('Move up')
 }
 
 export const moveDown = (cursor: Cursor, setCursor: (cursor: Cursor) => void): void => {
     // TODO: Implement vertical navigation
-    console.log('Move down')
 }

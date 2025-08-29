@@ -5,13 +5,14 @@ import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
 import "../Controls.css";
 import { useFontSize } from "../FontSizeContext";
+import { MATH_EDITOR_CONSTANTS } from "../../mathview/core/constants";
 
 // Constants
 const MIN_FONT_SIZE = 4;
 const MAX_FONT_SIZE = 72;
-const DEFAULT_FONT_SIZE = 12;
+const DEFAULT_FONT_SIZE = MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE;
 const DRAG_SENSITIVITY = 5;
-const EDGE_WIDTH = 8;
+const EDGE_WIDTH = 10;
 
 export default function FontSize() {
   const [editor] = useLexicalComposerContext();

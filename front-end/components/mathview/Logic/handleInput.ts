@@ -1,33 +1,22 @@
-import { Cursor } from '../Types'
-import { logNodeTree } from './nodeUtils'
+import { Cursor, ExitCallbacks } from '../core/types'
 import { insertExponent, insertFraction, insertSymbol } from './edit'
 import { moveLeft, moveRight, moveUp, moveDown } from './navigation'
+import { NAVIGATION_KEYS, MATH_OPERATORS, FRACTION_OPERATOR, EXPONENT_OPERATOR } from '../core/constants'
 
-// Constants for better maintainability
-const NAVIGATION_KEYS = {
-    ARROW_LEFT: 'ArrowLeft',
-    ARROW_RIGHT: 'ArrowRight',
-    ARROW_UP: 'ArrowUp',
-    ARROW_DOWN: 'ArrowDown',
-    BACKSPACE: 'Backspace',
-    SPACE: ' '
-} as const
-
-const MATH_OPERATORS = ['+', '-', '*'] as const
-const FRACTION_OPERATOR = '/' as const
-const EXPONENT_OPERATOR = '^' as const
-
-export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: Cursor) => void): void => {
-    logNodeTree(cursor.root)
-    console.log('input', input)
+export const handleInput = (
+    input: string,
+    cursor: Cursor,
+    setCursor: (cursor: Cursor) => void,
+    exits?: ExitCallbacks
+): void => {
 
     // Handle navigation keys
     switch (input) {
         case NAVIGATION_KEYS.ARROW_LEFT:
-            moveLeft(cursor, setCursor)
+            moveLeft(cursor, setCursor, exits)
             return
         case NAVIGATION_KEYS.ARROW_RIGHT:
-            moveRight(cursor, setCursor)
+            moveRight(cursor, setCursor, exits)
             return
         case NAVIGATION_KEYS.ARROW_UP:
             moveUp(cursor, setCursor)
@@ -39,10 +28,8 @@ export const handleInput = (input: string, cursor: Cursor, setCursor: (cursor: C
             // TODO: Implement deletion logic
             return
         case NAVIGATION_KEYS.SPACE:
-            const event = new CustomEvent('math-navigate-right', {
-                detail: { nodeKey: (window as any).currentMathNodeKey }
-            });
-            document.dispatchEvent(event);
+            // Optional: treat space as exit to the right for convenience
+            exits?.onExitRight?.()
             return
     }
 
