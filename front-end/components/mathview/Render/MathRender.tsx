@@ -65,13 +65,18 @@ function RenderRow({
       }
     }
 
-    // Default: add spacing except digit-digit adjacency
+    // Default: add spacing except digit-digit adjacency; keep exponents tight to their base
     let marginLeft = 0;
     const isCurrentDigit = isDigitSymbol(child);
     const isPrevDigit = isDigitSymbol(prevNonCursor);
+    const isCurrentExponent = isExponent(child);
 
     if (prevNonCursor) {
-      if (!(isPrevDigit && isCurrentDigit)) {
+      if (isCurrentExponent) {
+        const prevIsOperator =
+          isSymbol(prevNonCursor) && /^[+\-*/=]$/.test(prevNonCursor.value);
+        marginLeft = prevIsOperator ? 0.22 : 0;
+      } else if (!(isPrevDigit && isCurrentDigit)) {
         marginLeft = 0.22;
       }
     }
@@ -172,7 +177,6 @@ function RenderExponent({
   showCursor: boolean;
   onNodeClick?: (node: Node) => void;
 }) {
-  // Base inherits; raised reduced to 85%
   return (
     <span className={styles.exponent}>
       <span className={styles.expBase}>
@@ -184,7 +188,7 @@ function RenderExponent({
           onNodeClick={onNodeClick}
         />
       </span>
-      <span className={styles.expRaised} style={{ fontSize: "0.85em" }}>
+      <span className={styles.expRaised}>
         <RenderRow
           row={exp.raised}
           depth={depth + 1}
