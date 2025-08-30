@@ -225,8 +225,22 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
           const currentRoot = latestRootRef.current;
           const currentCursor = latestCursorRef.current;
           if (event.nodeKey === nodeKey && currentRoot && currentCursor) {
-            // When a node is created, place cursor at the end
-            moveNode(currentCursor, currentRoot, currentRoot.children.length);
+            // Find the last non-cursor node just created
+            const children = currentRoot.children;
+            let idx = children.length - 1;
+            while (idx >= 0 && children[idx].type === "cursor") idx--;
+            const lastNode = idx >= 0 ? children[idx] : null;
+
+            if (lastNode && lastNode.type === "exponent") {
+              // Move cursor into the superscript (raised) row
+              moveNode(currentCursor, lastNode.raised, 0);
+            } else if (lastNode && lastNode.type === "fraction") {
+              // Move cursor into the denominator row
+              moveNode(currentCursor, lastNode.denominator, 0);
+            } else {
+              // Fallback: place at end
+              moveNode(currentCursor, currentRoot, currentRoot.children.length);
+            }
             setCursor({ ...currentCursor });
             inputRef.current?.focus();
           }
@@ -251,9 +265,6 @@ const MathEditor = forwardRef<MathEditorAPI, MathEditorProps>(
             } else if (direction === "right") {
               // Coming from right, place cursor at start
               moveNode(currentCursor, currentRoot, 0);
-            } else {
-              // No direction specified, default to end for new nodes
-              moveNode(currentCursor, currentRoot, currentRoot.children.length);
             }
             setCursor({ ...currentCursor });
             inputRef.current?.focus();

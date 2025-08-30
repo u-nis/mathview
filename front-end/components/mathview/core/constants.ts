@@ -35,9 +35,7 @@ export const NAVIGATION_KEYS = {
 
 // Math operators (excluding / and ^ which are special operators)
 export const MATH_OPERATORS = [
-  "+", "-", "*", "=", "(", ")", "[", "]", "{", "}", 
-  ".", ",", ";", ":", "!", "?", "@", "#", "$", "%", 
-  "&", "|", "~", "`", "'", '"', "\\", "<", ">"
+  "+", "-", "*", "="
 ] as const;
 
 export const FRACTION_OPERATOR = "/";

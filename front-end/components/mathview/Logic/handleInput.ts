@@ -35,6 +35,7 @@ export const handleInput = (
 
     // Handle mathematical inputs
     if (MATH_OPERATORS.includes(input as any) || /^[0-9]$/.test(input)) {
+        console.log('symbol', input)
         insertSymbol(input, cursor)
         setCursor({ ...cursor })
     } else if (input === FRACTION_OPERATOR) {
@@ -43,5 +44,5 @@ export const handleInput = (
     } else if (input === EXPONENT_OPERATOR) {
         insertExponent(input, cursor)
         setCursor({ ...cursor })
-    }
+    } 
 }

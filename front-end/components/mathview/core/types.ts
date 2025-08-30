@@ -13,7 +13,10 @@ export interface MathSymbol extends BaseNode {
 export interface Row extends BaseNode {
   type: "row";
   children: Node[];
-  parent: Row | null;
+  // A Row can be nested directly under another Row, or as a child of
+  // composite structures like Fraction (numerator/denominator) or
+  // Exponent (base/raised). Root Row has parent null.
+  parent: Row | Fraction | Exponent | null;
 }
 
 export interface Fraction extends BaseNode {
