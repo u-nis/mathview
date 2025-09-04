@@ -9,8 +9,8 @@ import List from "./plugins/List";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INSERT_BANNER_COMMAND } from "./plugins/BannerPlugin";
 import { JSX } from "react";
-import "@/components/Editor/Toolbar.css";
-import "@/components/Editor/Controls.css";
+import "@/components/Lexical/Editor/Toolbar.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
 function BannertoolbarPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();

@@ -13,7 +13,7 @@ export interface MathSymbol extends BaseNode {
 export interface Row extends BaseNode {
   type: "row";
   children: Node[];
-  parent: Row | null;
+  parent: Row | Fraction | Exponent | null;
 }
 
 export interface Fraction extends BaseNode {

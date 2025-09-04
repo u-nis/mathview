@@ -1,11 +1,11 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
-import { SET_MATHNODE_FONT_SIZE_COMMAND } from "../Nodes/MathNode";
+import { SET_MATHNODE_FONT_SIZE_COMMAND } from "../../Nodes/MathNode";
 import { $patchStyleText } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
-import "../Controls.css";
-import { useFontSize } from "../FontSizeContext";
-import { MATH_EDITOR_CONSTANTS } from "../../mathview/core/constants";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
+import { useFontSize } from "./FontSizeContext";
+import { MATH_EDITOR_CONSTANTS } from "../constants";
 
 // Constants
 const MIN_FONT_SIZE = 4;

@@ -4,23 +4,28 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import styles from "./TextEditor.module.css";
+import styles from "./Editor.module.css";
 import "./Rulers/Ruler.css";
 import { HeadingNode } from "@lexical/rich-text";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ListNode, ListItemNode } from "@lexical/list";
 import Toolbar from "./ToolBar";
 import { BannerNode, BannerPlugin } from "./plugins/BannerPlugin";
-import { MathParserPlugin } from "./plugins/MathParser";
 import { FontSizeSyncPlugin } from "./plugins/FontSizeSync";
 import { TreeView } from "@lexical/react/LexicalTreeView";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { MathNode, MathNodePlugin } from "./Nodes/MathNode";
 import TopRuler from "./Rulers/TopRuler";
 import { useEffect, useRef, useState } from "react";
 import RightRuler from "./Rulers/RightRuler";
 import LeftRuler from "./Rulers/LeftRuler";
-import { FontSizeProvider } from "./FontSizeContext";
+import { FontSizeProvider } from "./plugins/FontSizeContext";
+import { MathKeymapPlugin } from "../Math/plugins/MathNavigationPlugin";
+import { MathParserPlugin } from "../Math/plugins/MathParserPlugin";
+import { InsertMathPlugin } from "../Math/plugins/InsertMathPlugin";
+import "../Math/math.css";
+import { MathExpressionNode } from "../Math/nodes/MathExpressionNode";
+import { RowNode } from "../Math/nodes/RowNode";
+import { FractionNode } from "../Math/nodes/FractionNode";
 
 const theme = {
   heading: {
@@ -54,7 +59,15 @@ export default function Editor() {
     namespace: "MyEditor",
     theme,
     onError,
-    nodes: [HeadingNode, ListNode, ListItemNode, BannerNode, MathNode],
+    nodes: [
+      HeadingNode,
+      ListNode,
+      ListItemNode,
+      BannerNode,
+      MathExpressionNode,
+      RowNode,
+      FractionNode,
+    ],
   };
 
   const [leftMargin, setLeftMargin] = useState(72);
@@ -87,9 +100,10 @@ export default function Editor() {
   return (
     <FontSizeProvider>
       <LexicalComposer initialConfig={initialConfig}>
-        <MathParserPlugin />
-        <MathNodePlugin />
         <FontSizeSyncPlugin />
+        <MathKeymapPlugin />
+        <MathParserPlugin />
+        <InsertMathPlugin />
 
         <div>
           <div

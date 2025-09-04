@@ -1,9 +1,9 @@
 import React, { forwardRef } from "react";
-import { Cursor } from "./core/types";
+import { Cursor } from "./Types";
 import { handleInput } from "./Logic/handleInput";
 
-export interface MathInputProps {
-  cursor: Cursor | null;
+interface MathInputProps {
+  cursor: Cursor;
   setCursor: (cursor: Cursor) => void;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -14,15 +14,16 @@ export interface MathInputProps {
 const MathInput = forwardRef<HTMLDivElement, MathInputProps>(
   ({ cursor, setCursor, onFocus, onBlur, onExitLeft, onExitRight }, ref) => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!cursor) return;
       if (e.key.startsWith("Arrow")) {
         e.preventDefault();
         e.stopPropagation();
+        console.log("key", e.key);
         handleInput(e.key, cursor, setCursor, {
           onExitLeft,
           onExitRight,
         });
       } else if (e.key.length === 1) {
+        console.log("key", e.key);
         handleInput(e.key, cursor, setCursor, {
           onExitLeft,
           onExitRight,

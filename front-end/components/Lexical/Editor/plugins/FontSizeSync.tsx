@@ -7,7 +7,7 @@ import {
 } from "lexical";
 import { KEY_DOWN_COMMAND, PASTE_COMMAND } from "lexical";
 import { $patchStyleText } from "@lexical/selection";
-import { useFontSize } from "../FontSizeContext";
+import { useFontSize } from "./FontSizeContext";
 
 export function FontSizeSyncPlugin() {
   const [editor] = useLexicalComposerContext();

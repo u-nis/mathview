@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { UNDO_COMMAND, REDO_COMMAND } from "lexical";
-import "../Controls.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
 export default function UndoRedo() {
   const [editor] = useLexicalComposerContext();

@@ -5,7 +5,7 @@ import {
   ListType,
 } from "@lexical/list";
 import { useState, useRef, useEffect } from "react";
-import "../Controls.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
 export default function List() {
   const [editor] = useLexicalComposerContext();

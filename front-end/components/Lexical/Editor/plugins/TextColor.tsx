@@ -3,7 +3,7 @@ import { $getSelection, $isRangeSelection } from "lexical";
 import { useState, useRef, useEffect } from "react";
 import { SketchPicker, ColorResult } from "react-color";
 import { $patchStyleText } from "@lexical/selection";
-import "../Controls.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
 export default function TextColor() {
   const [editor] = useLexicalComposerContext();

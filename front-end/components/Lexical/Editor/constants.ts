@@ -1,0 +1,7 @@
+export const MATH_EDITOR_CONSTANTS = {
+    DEFAULT_FONT_SIZE: 25,
+    DEFAULT_FONT_FAMILY: "Times New Roman, serif",
+    DEFAULT_FONT_COLOR: "#000000",
+    DEFAULT_BACKGROUND_COLOR: "transparent",
+    DEFAULT_CURSOR_COLOR: "#000000",
+  } as const;

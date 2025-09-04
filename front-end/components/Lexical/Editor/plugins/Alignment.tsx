@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INDENT_CONTENT_COMMAND, OUTDENT_CONTENT_COMMAND } from "lexical";
-import "../Controls.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
 export default function Alignment() {
   const [editor] = useLexicalComposerContext();

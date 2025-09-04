@@ -1,13 +1,14 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
-import { $patchStyleText } from "@lexical/selection";
+import { $createHeadingNode } from "@lexical/rich-text";
+import { $setBlocksType } from "@lexical/selection";
 import { useState, useRef, useEffect } from "react";
-import "../Controls.css";
+import "@/components/Lexical/Editor/Plugins/Controls.css";
 
-export default function FontFamily() {
+export default function TextFormat() {
   const [editor] = useLexicalComposerContext();
-  const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
-  const [selectedFont, setSelectedFont] = useState("Times New Roman");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState("Normal Text");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export default function FontFamily() {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsFontDropdownOpen(false);
+        setIsDropdownOpen(false);
       }
     };
 
@@ -26,11 +27,20 @@ export default function FontFamily() {
     };
   }, []);
 
-  const onFont = (font: string) => {
+  const onHeadingClick = (tag: "h1" | "h2" | "h3"): void => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        $patchStyleText(selection, { "font-family": font });
+        $setBlocksType(selection, () => $createHeadingNode(tag));
+      }
+    });
+  };
+
+  const onNormalTextClick = () => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        $setBlocksType(selection, () => null);
       }
     });
   };
@@ -38,12 +48,12 @@ export default function FontFamily() {
   return (
     <div style={{ position: "relative" }} ref={dropdownRef}>
       <button
-        onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="dropdown"
       >
-        {selectedFont}
+        {selectedFormat}
       </button>
-      {isFontDropdownOpen && (
+      {isDropdownOpen && (
         <div
           style={{
             position: "absolute",
@@ -58,38 +68,28 @@ export default function FontFamily() {
             minWidth: "120px",
           }}
         >
-          {[
-            {
-              text: "Arial",
-              action: () => {
-                onFont("Arial");
-                setSelectedFont("Arial");
-              },
-            },
-            {
-              text: "Verdana",
-              action: () => {
-                onFont("Verdana");
-                setSelectedFont("Verdana");
-              },
-            },
-            {
-              text: "Times New Roman",
-              action: () => {
-                onFont("Times New Roman");
-                setSelectedFont("Times New Roman");
-              },
-            },
-            {
-              text: "Courier New",
-              action: () => {
-                onFont("Courier New");
-                setSelectedFont("Courier New");
-              },
-            },
-          ].map((item, index) => (
+          <button
+            style={{
+              padding: "6px 8px",
+              width: "100%",
+              textAlign: "left",
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              color: "black",
+              borderBottom: "1px solid #eee",
+            }}
+            onClick={() => {
+              onNormalTextClick();
+              setSelectedFormat("Normal Text");
+              setIsDropdownOpen(false);
+            }}
+          >
+            Normal Text
+          </button>
+          {["Header 1", "Header 2", "Header 3"].map((text, index) => (
             <button
-              key={item.text}
+              key={text}
               style={{
                 padding: "6px 8px",
                 width: "100%",
@@ -98,14 +98,15 @@ export default function FontFamily() {
                 background: "none",
                 cursor: "pointer",
                 color: "black",
-                borderBottom: index < 3 ? "1px solid #eee" : "none",
+                borderBottom: index < 2 ? "1px solid #eee" : "none",
               }}
               onClick={() => {
-                item.action();
-                setIsFontDropdownOpen(false);
+                onHeadingClick(`h${index + 1}` as "h1" | "h2" | "h3");
+                setSelectedFormat(text);
+                setIsDropdownOpen(false);
               }}
             >
-              {item.text}
+              {text}
             </button>
           ))}
         </div>

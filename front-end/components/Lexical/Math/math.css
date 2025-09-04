@@ -1,0 +1,42 @@
+/* MathLexical math styling to mirror MathView */
+
+/* Root expression container */
+[data-lexical-math="expression"] {
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: inherit;
+}
+
+/* Row layout */
+[data-lexical-math="row"] {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+/* Fraction layout */
+[data-lexical-math="fraction"] {
+  display: inline-block;
+  text-align: center;
+  transform: translateY(-0.12em);
+  padding: 0 0.2em;
+}
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child {
+  display: block;
+}
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child {
+  display: block;
+  position: relative;
+}
+
+/* Fraction bar */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child::before {
+  content: "";
+  position: absolute;
+  top: -0.08em;
+  left: 0;
+  right: 0;
+  height: max(1px, 0.06em);
+  background: currentColor;
+}

@@ -11,18 +11,12 @@ import {
   $getNodeByKey,
   $createNodeSelection,
   $isNodeSelection,
-  KEY_DOWN_COMMAND,
-  COMMAND_PRIORITY_CRITICAL,
 } from "lexical";
-import React, { useRef, useEffect } from "react";
-import MathEditor, { MathEditorAPI } from "@/components/mathview/MathEditor";
+import React, { useRef, useEffect, useState } from "react";
+import MathEditor, { MathEditorAPI } from "../../mathview/MathEditor";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
-import "../Nodes/MathNode.css";
+import "./MathNode.css";
 import { MATH_EDITOR_CONSTANTS } from "../../mathview/core/constants";
-import {
-  mathViewEventBus,
-  MathViewEventType,
-} from "../../mathview/core/events";
 
 // Serialized type for the MathNode
 export type SerializedMathNode = SerializedLexicalNode & {
@@ -33,11 +27,8 @@ export type SerializedMathNode = SerializedLexicalNode & {
   fontStyle?: string;
 };
 
-// Per-node initial math strings to avoid global leakage across instances
-const initMathStringByNode: Map<string, string> = new Map();
-// Track the last cursor position before entering a MathNode
-const lastCursorPosition: Map<string, { nodeKey: string; offset: number }> =
-  new Map();
+let initMathString = "";
+const entrySideByNodeKey = new Map<string, "start" | "end">();
 export class MathNode extends DecoratorNode<React.ReactElement> {
   __fontSize: number;
   __fontFamily: string;
@@ -62,11 +53,7 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
 
   static importJSON(serializedNode: SerializedMathNode): MathNode {
     return new MathNode(
-      serializedNode.fontSize ?? MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE,
-      serializedNode.fontFamily ?? "Times New Roman",
-      serializedNode.fontColor ?? "black",
-      serializedNode.fontWeight ?? "normal",
-      serializedNode.fontStyle ?? "normal"
+      serializedNode.fontSize ?? MATH_EDITOR_CONSTANTS.DEFAULT_FONT_SIZE
     );
   }
 
@@ -144,70 +131,21 @@ function MathNodeComponent({
   const [editor] = useLexicalComposerContext();
   const mathEditorRef = useRef<MathEditorAPI>(null);
   const hasInsertedRef = useRef(false);
-  const [isSelected] = useLexicalNodeSelection(nodeKey);
-
-  // Effect to handle selection changes
+  const [isSelected, setSelected, clearSelection] =
+    useLexicalNodeSelection(nodeKey);
+  // When the node becomes selected, place the internal cursor based on entry side
   useEffect(() => {
-    if (isSelected) {
-      if (mathEditorRef.current) {
-        editor.update(() => {
-          const mathNode = $getNodeByKey(nodeKey);
-          if (!mathNode) return;
-          const mathParent = mathNode.getParent();
-          if (!mathParent) return;
-
-          // Use the captured cursor position to determine entry direction
-          const capturedPosition = lastCursorPosition.get(nodeKey);
-          let inferredDirection: "left" | "right" | null = null;
-
-          if (capturedPosition) {
-            const mathNodeIndex = mathNode.getIndexWithinParent();
-            const capturedNode = $getNodeByKey(capturedPosition.nodeKey);
-
-            if (capturedNode) {
-              const capturedParent = capturedNode.getParent();
-              if (capturedParent === mathParent) {
-                // Same parent, compare indices
-                const capturedIndex = capturedNode.getIndexWithinParent();
-
-                if (capturedIndex < mathNodeIndex) {
-                  inferredDirection = "right"; // Came from left
-                } else if (capturedIndex > mathNodeIndex) {
-                  inferredDirection = "left"; // Came from right
-                } else {
-                  // Same position, check offset
-                  if (capturedNode.getType() === "text") {
-                    const textContent = capturedNode.getTextContent();
-
-                    if (capturedPosition.offset === textContent.length) {
-                      inferredDirection = "right"; // At end of text, likely moving right
-                    } else if (capturedPosition.offset === 0) {
-                      inferredDirection = "left"; // At start of text, likely moving left
-                    }
-                  }
-                }
-              } else {
-                // Different parent, use the original direction from arrow key
-                // This will be handled by the arrow key handler
-              }
-            }
-
-            // Clean up the captured position
-            lastCursorPosition.delete(nodeKey);
-          } else {
-            // No captured position (e.g., clicked on MathNode)
-            // Default to end position for better UX
-            inferredDirection = null; // Will default to end in MathEditor
-          }
-
-          // Publish selection event with inferred direction
-          mathViewEventBus.publishNodeSelected(nodeKey, inferredDirection);
-        });
-        // Focus after Lexical state update to avoid nested update issues
-        mathEditorRef.current?.focus();
-      }
+    if (!isSelected) return;
+    if (!mathEditorRef.current) return;
+    const side = entrySideByNodeKey.get(nodeKey);
+    if (side === "end") {
+      mathEditorRef.current.restoreCursorAtEnd();
+    } else {
+      mathEditorRef.current.restoreCursorAtStart();
     }
-  }, [isSelected, editor, nodeKey]);
+    entrySideByNodeKey.delete(nodeKey);
+    mathEditorRef.current.focus();
+  }, [isSelected, nodeKey]);
 
   // Listen for external font-size apply events to update embedded MathEditor immediately
   useEffect(() => {
@@ -228,7 +166,7 @@ function MathNodeComponent({
       );
   }, [isSelected]);
 
-  // Exit callbacks for MathEditor to move selection out of MathNode
+  // Define exit callbacks to move caret out of the math node
   const exitLeft = () => {
     if (mathEditorRef.current) {
       mathEditorRef.current.removeCursor();
@@ -282,21 +220,33 @@ function MathNodeComponent({
 
   // Effect to insert the detected math string when the component mounts
   useEffect(() => {
-    const init = initMathStringByNode.get(nodeKey);
-    if (init && mathEditorRef.current && !hasInsertedRef.current) {
+    console.log(
+      "MathNodeComponent effect running, initMathString:",
+      initMathString,
+      "mathEditorRef.current:",
+      mathEditorRef.current
+    );
+
+    if (initMathString && mathEditorRef.current && !hasInsertedRef.current) {
       // Insert each character from the detected math string
-      for (let i = 0; i < init.length; i++) {
-        mathEditorRef.current.insert(init[i]);
+      for (let i = 0; i < initMathString.length; i++) {
+        console.log("Inserting character:", initMathString[i]);
+        mathEditorRef.current.insert(initMathString[i]);
       }
-      // Mark inserted and clear to prevent reuse on future mounts
+
       hasInsertedRef.current = true;
-      initMathStringByNode.delete(nodeKey);
+      console.log("Insertion completed, hasInserted set to true");
     }
 
     // Always focus the MathEditor when component mounts
     setTimeout(() => {
+      console.log(
+        "Attempting to focus MathEditor, ref available:",
+        mathEditorRef.current
+      );
       if (mathEditorRef.current) {
         mathEditorRef.current.focus();
+        console.log("Focus called on MathEditor");
       }
     }, 50);
   }, []);
@@ -344,10 +294,16 @@ export const INSERT_MATH_COMMAND = createCommand<{
   replace?: string;
   fontSizePx?: number;
   fontFamily?: string;
+  prefill?: boolean; // when true, seed MathEditor with replace string
 }>("insertMath");
 export const SET_MATHNODE_FONT_SIZE_COMMAND = createCommand<number>(
   "setMathNodeFontSize"
 );
+
+export const ENTER_MATH_COMMAND = createCommand<{
+  nodeKey: string;
+  side: "start" | "end";
+}>("enterMath");
 
 // Plugin to register the command
 export function MathNodePlugin(): null {
@@ -357,89 +313,23 @@ export function MathNodePlugin(): null {
     throw new Error("MathNodePlugin: MathNode is not registered on the editor");
   }
 
-  // Smooth entry into MathNode when caret crosses boundaries
+  // Handle entering a math node from text via command
   useEffect(() => {
-    const remove = editor.registerCommand(
-      KEY_DOWN_COMMAND,
-      (e: KeyboardEvent) => {
-        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return false;
-        let handled = false;
-
-        // First read current state to decide
-        let action: null | { key: NodeKey; dir: "left" | "right" } = null;
-        editor.getEditorState().read(() => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) return;
-          const anchorNode = selection.anchor.getNode();
-          const parent = anchorNode.getParent();
-          if (!parent) return;
-          const offset = selection.anchor.offset;
-          if (e.key === "ArrowLeft") {
-            if (anchorNode.getType() === "text") {
-              if (offset === 0) {
-                const prevSibling = parent.getChildAtIndex(
-                  anchorNode.getIndexWithinParent() - 1
-                );
-                if ($isMathNode(prevSibling)) {
-                  action = { key: prevSibling.getKey(), dir: "left" };
-                }
-              }
-            } else {
-              // Element selection at index: check previous child
-              const prevSibling = parent.getChildAtIndex(offset - 1);
-              if ($isMathNode(prevSibling)) {
-                action = { key: prevSibling.getKey(), dir: "left" };
-              }
-            }
-          } else if (e.key === "ArrowRight") {
-            if (anchorNode.getType() === "text") {
-              const textContent = anchorNode.getTextContent();
-              if (offset === textContent.length) {
-                const nextSibling = parent.getChildAtIndex(
-                  anchorNode.getIndexWithinParent() + 1
-                );
-                if ($isMathNode(nextSibling)) {
-                  action = { key: nextSibling.getKey(), dir: "right" };
-                }
-              }
-            } else {
-              // Element selection: check next child at offset
-              const nextSibling = parent.getChildAtIndex(offset);
-              if ($isMathNode(nextSibling)) {
-                action = { key: nextSibling.getKey(), dir: "right" };
-              }
-            }
-          }
+    return editor.registerCommand(
+      ENTER_MATH_COMMAND,
+      ({ nodeKey, side }) => {
+        editor.update(() => {
+          entrySideByNodeKey.set(nodeKey, side);
+          const node = $getNodeByKey(nodeKey);
+          if (!node) return;
+          const nodeSelection = $createNodeSelection();
+          nodeSelection.add(nodeKey);
+          $setSelection(nodeSelection);
         });
-
-        if (action) {
-          e.preventDefault();
-
-          // Capture the current cursor position before changing selection
-          editor.update(() => {
-            const currentSelection = $getSelection();
-            if ($isRangeSelection(currentSelection)) {
-              lastCursorPosition.set(action!.key, {
-                nodeKey: currentSelection.anchor.key,
-                offset: currentSelection.anchor.offset,
-              });
-            }
-          });
-
-          editor.update(() => {
-            const nodeSelection = $createNodeSelection();
-            nodeSelection.add(action!.key);
-            $setSelection(nodeSelection);
-            // Publish occurs in the node's isSelected effect
-          });
-          handled = true;
-        }
-
-        return handled ? true : false;
+        return true;
       },
-      COMMAND_PRIORITY_CRITICAL
+      COMMAND_PRIORITY_LOW
     );
-    return remove;
   }, [editor]);
 
   editor.registerCommand(
@@ -450,31 +340,25 @@ export function MathNodePlugin(): null {
         deleteMathString(editor, payload.replace);
       }
 
-      let createdNodeKey: string | null = null;
       editor.update(() => {
         const mathNode = $createMathNode(payload?.fontSizePx);
         const selection = $getSelection();
         if (selection) {
           selection.insertNodes([mathNode]);
 
-          // Register initial math string for this specific node key
-          if (payload?.replace) {
-            initMathStringByNode.set(mathNode.getKey(), payload.replace);
+          // Optionally prefill the MathEditor with the replace string
+          if (payload?.replace && payload?.prefill) {
+            initMathString = payload.replace;
+          } else {
+            initMathString = "";
           }
 
           // Select the newly inserted MathNode
           const nodeSelection = $createNodeSelection();
           nodeSelection.add(mathNode.getKey());
           $setSelection(nodeSelection);
-
-          // Defer event publish until after update
-          createdNodeKey = mathNode.getKey();
         }
       });
-      if (createdNodeKey) {
-        // Publish node creation event - MathEditor will handle cursor placement
-        mathViewEventBus.publishNodeCreated(createdNodeKey);
-      }
       return true;
     },
     COMMAND_PRIORITY_LOW

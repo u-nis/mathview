@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState } from "react";
-import { MATH_EDITOR_CONSTANTS } from "../mathview/core/constants";
+import { MATH_EDITOR_CONSTANTS } from "../../../mathview/core/constants";
 
 type FontSizeContextType = {
   fontSize: number;
