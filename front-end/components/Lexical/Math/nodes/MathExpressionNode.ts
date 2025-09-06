@@ -1,5 +1,7 @@
 import type { NodeKey, SerializedElementNode, Spread } from "lexical";
 import { ElementNode } from "lexical";
+import { $createRowNode, RowNode } from "./RowNode";
+
 
 export type SerializedMathExpressionNode = Spread<
   {
@@ -35,6 +37,13 @@ export class MathExpressionNode extends ElementNode {
     super(key);
   }
 
+  get root(): RowNode {
+    if (!this.getFirstChild()) {
+      throw new Error("MathExpressionNode has no root");
+    }
+    return this.getFirstChild();
+  }
+
   createDOM(): HTMLElement {
     const dom = document.createElement("span");
     dom.dataset.lexicalMath = "expression";
@@ -52,7 +61,10 @@ export class MathExpressionNode extends ElementNode {
 }
 
 export function $createMathExpressionNode(): MathExpressionNode {
-  return new MathExpressionNode();
+  const root = $createRowNode();
+  const mathExpr = new MathExpressionNode();
+  mathExpr.append(root);
+  return mathExpr;
 }
 
 export function $isMathExpressionNode(

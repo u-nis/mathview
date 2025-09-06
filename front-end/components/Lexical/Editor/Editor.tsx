@@ -26,6 +26,8 @@ import "../Math/math.css";
 import { MathExpressionNode } from "../Math/nodes/MathExpressionNode";
 import { RowNode } from "../Math/nodes/RowNode";
 import { FractionNode } from "../Math/nodes/FractionNode";
+import { NumberNode } from "../Math/nodes/NumberNode";
+import { OperatorNode } from "../Math/nodes/OperatorNode";
 
 const theme = {
   heading: {
@@ -66,7 +68,9 @@ export default function Editor() {
       BannerNode,
       MathExpressionNode,
       RowNode,
+      NumberNode,
       FractionNode,
+      OperatorNode,
     ],
   };
 
