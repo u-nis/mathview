@@ -1,0 +1,37 @@
+/* [project]/components/Editor/editor.css [app-client] (css) */
+.editor-container {
+  color: #000;
+  background-color: #fff;
+  outline: 1px solid #000;
+  flex-direction: column;
+  width: 1086px;
+  height: 1540.42px;
+  display: flex;
+}
+
+.editor-content {
+  flex-direction: column;
+  flex: auto;
+  display: flex;
+}
+
+.editor-input {
+  outline: none;
+  font-family: Times New Roman, serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.editor-input:focus, .editor-input:focus-visible, .button:focus, .button:focus-visible, .dropdown:focus, .dropdown:focus-visible, .font-size-input-container:focus, .font-size-input-container:focus-visible, .editor-container :focus, .editor-container :focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.treeview-container {
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  width: 1086px;
+  padding: 8px 12px;
+}
+
+/*# sourceMappingURL=components_Editor_editor_css_f9ee138c._.single.css.map*/

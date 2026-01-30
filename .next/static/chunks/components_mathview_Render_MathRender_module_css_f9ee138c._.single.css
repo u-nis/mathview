@@ -1,0 +1,106 @@
+/* [project]/components/mathview/Render/MathRender.module.css [app-client] (css) */
+.MathRender-module__1683Gq__root {
+  vertical-align: baseline;
+  line-height: inherit;
+  display: inline-block;
+}
+
+.MathRender-module__1683Gq__row {
+  align-items: baseline;
+  display: inline-flex;
+}
+
+.MathRender-module__1683Gq__rowInner, .MathRender-module__1683Gq__item, .MathRender-module__1683Gq__caretAnchor {
+  align-items: baseline;
+  display: inline-flex;
+  position: relative;
+}
+
+.MathRender-module__1683Gq__symbol {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.MathRender-module__1683Gq__digit {
+  letter-spacing: 0;
+}
+
+.MathRender-module__1683Gq__operator {
+  margin: 0 .16em;
+}
+
+.MathRender-module__1683Gq__caretPlaceholder {
+  color: #0000;
+  border-left: 1px solid;
+  margin-left: -1px;
+  font-size: 0;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  display: inline;
+}
+
+@keyframes MathRender-module__1683Gq__mq-caret-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+
+  50.01%, 100% {
+    opacity: 0;
+  }
+}
+
+.MathRender-module__1683Gq__fraction {
+  text-align: center;
+  padding: 0 .2em;
+  display: inline-block;
+  transform: translateY(-.12em);
+}
+
+.MathRender-module__1683Gq__numerator, .MathRender-module__1683Gq__denominator {
+  display: block;
+}
+
+.MathRender-module__1683Gq__denominator {
+  position: relative;
+}
+
+.MathRender-module__1683Gq__denominator:before {
+  content: "";
+  background: currentColor;
+  height: .5px;
+  position: absolute;
+  top: -.08em;
+  left: 0;
+  right: 0;
+}
+
+.MathRender-module__1683Gq__exponent, .MathRender-module__1683Gq__expBase {
+  align-items: baseline;
+  display: inline-flex;
+}
+
+.MathRender-module__1683Gq__expRaised {
+  align-items: baseline;
+  margin-left: .05em;
+  display: inline-flex;
+  transform: translateY(-.35em);
+}
+
+.MathRender-module__1683Gq__caretAbs {
+  width: 1px;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -1px;
+}
+
+.MathRender-module__1683Gq__caretStart {
+  width: 1px;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/*# sourceMappingURL=components_mathview_Render_MathRender_module_css_f9ee138c._.single.css.map*/

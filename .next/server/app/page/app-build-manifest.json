@@ -1,0 +1,23 @@
+{
+  "pages": {
+    "/page": [
+      "static/chunks/ffba7_next_dist_321c1bb2._.js",
+      "static/chunks/app_favicon_ico_mjs_684b287c._.js",
+      "static/chunks/app_globals_73c37791.css",
+      "static/chunks/app_layout_tsx_f31f92b9._.js",
+      "static/chunks/components_6e0fb8f6._.js",
+      "static/chunks/b9bce_lexical_Lexical_dev_mjs_5e5ebb2d._.js",
+      "static/chunks/8c158_@lexical_table_LexicalTable_dev_mjs_d546200d._.js",
+      "static/chunks/node_modules__pnpm_19dd5b93._.js",
+      "static/chunks/components_784451ed._.css",
+      "static/chunks/app_page_tsx_51dee17a._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_92e1dbeb._.js",
+      "static/chunks/ffba7_next_dist_compiled_12997b94._.js",
+      "static/chunks/ffba7_next_dist_client_e2999bf1._.js",
+      "static/chunks/ffba7_next_dist_96e619a3._.js",
+      "static/chunks/61dca_@swc_helpers_cjs_e27e0aca._.js",
+      "static/chunks/_e69f0d32._.js",
+      "static/chunks/_6feec31a._.js"
+    ]
+  }
+}

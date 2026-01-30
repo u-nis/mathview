@@ -37,9 +37,8 @@ export class NumberNode extends TextNode {
     };
   }
 
-  getTextContent(): string {    
-    // Don’t contribute to editor.getTextContent()
-    return `[${this.__text}]`;
+  getTextContent(): string {
+    return this.__text;
   }
   getTextContentSize(): number {
     return this.__text.length; // real length
@@ -59,8 +58,14 @@ export class NumberNode extends TextNode {
     return dom;
   }
 
-  updateDOM(): boolean {
-    return false;
+  updateDOM(
+    prevNode: NumberNode,
+    dom: HTMLElement,
+    config: EditorConfig
+  ): boolean {
+    // Let parent TextNode handle text content updates
+    const isUpdated = super.updateDOM(prevNode, dom, config);
+    return isUpdated;
   }
 }
 

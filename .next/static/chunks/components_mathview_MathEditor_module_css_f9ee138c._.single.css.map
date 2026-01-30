@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/components/mathview/MathEditor.module.css"],"sourcesContent":["/* MathEditor component styles */\n\n.container {\n  cursor: text;\n  user-select: none;\n  display: inline-block;\n  vertical-align: baseline;\n  width: auto;\n  min-width: 100%;\n  white-space: nowrap;\n  overflow: visible;\n}\n"],"names":[],"mappings":"AAEA"}}]
+}

@@ -1,0 +1,327 @@
+/* [project]/components/Editor/margin-ruler.css [app-client] (css) */
+.editor-margin-ruler {
+  width: 100%;
+  height: 24px;
+  position: relative;
+}
+
+.ruler-track {
+  background: #fff;
+  height: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ruler-content {
+  pointer-events: none;
+  background-image: repeating-linear-gradient(to right, #0000 0 9px, #bdbdbd 10px);
+  position: absolute;
+  inset: 0;
+}
+
+.ruler-shade {
+  pointer-events: none;
+  background: #0000000d;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.ruler-handle {
+  cursor: ew-resize;
+  pointer-events: auto;
+  background: none;
+  border: none;
+  width: 14px;
+  height: 100%;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.ruler-handle.left:after, .ruler-handle.right:after {
+  content: "";
+  border-top: 8px solid #666;
+  border-left: 6px solid #0000;
+  border-right: 6px solid #0000;
+  width: 0;
+  height: 0;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
+/* [project]/components/Editor/styles.css [app-client] (css) */
+.toolbar.toolbar-mac {
+  background: #efefef;
+  border: 1px solid #b7b7b7;
+  border-color: #f7f7f7 #b7b7b7 #b7b7b7 #f7f7f7;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  display: flex;
+}
+
+.toolbar-group {
+  gap: 6px;
+  display: inline-flex;
+}
+
+.toolbar-separator {
+  background: #b7b7b7;
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+}
+
+.toolbar-spacer {
+  flex: auto;
+}
+
+.button {
+  color: #111;
+  cursor: pointer;
+  background: #f6f6f6;
+  border: 1px solid #888;
+  border-radius: 0;
+  justify-content: center;
+  align-items: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  box-shadow: inset 0 1px #fff, inset 0 -1px #ddd;
+}
+
+.button:hover {
+  background: #eaeaea;
+}
+
+.button:active {
+  background: #dcdcdc;
+  box-shadow: inset 0 1px 1px #bbb;
+}
+
+.dropdown {
+  color: #111;
+  cursor: pointer;
+  background: #f6f6f6;
+  border: 1px solid #888;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  min-width: 110px;
+  height: 24px;
+  padding: 0 6px;
+  font-size: 11px;
+  display: inline-flex;
+  box-shadow: inset 0 1px #fff, inset 0 -1px #ddd;
+}
+
+.dropdown:hover {
+  background: #eaeaea;
+}
+
+.dropdown {
+  padding-right: 26px;
+  position: relative;
+}
+
+.dropdown:after {
+  content: "▾";
+  color: #111;
+  pointer-events: none;
+  font-size: 16px;
+  line-height: 1;
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+}
+
+.font-size-input-container {
+  color: #000;
+  user-select: none;
+  background-color: #f6f6f6;
+  border: 1px solid #888;
+  border-radius: 0;
+  outline: none;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  font-family: monospace;
+  font-size: 12px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px #fff, inset 0 -1px #ddd;
+}
+
+.button.icon {
+  all: unset;
+}
+
+.toolbar.toolbar-mac, .toolbar-group {
+  align-items: center;
+}
+
+.toolbar.toolbar-mac, .toolbar.toolbar-mac * {
+  box-sizing: border-box;
+}
+
+.toolbar.toolbar-mac .button, .toolbar.toolbar-mac .dropdown, .toolbar.toolbar-mac .font-size-input-container {
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  height: 26px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 26px !important;
+}
+
+.toolbar.toolbar-mac .dropdown:after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.toolbar.toolbar-mac .button {
+  font-size: 12px;
+}
+
+.toolbar.toolbar-mac .dropdown {
+  font-size: 11px;
+}
+
+.toolbar.toolbar-mac .button:has( > span), .toolbar.toolbar-mac .button {
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* [project]/components/mathview/Render/MathRender.module.css [app-client] (css) */
+.MathRender-module__1683Gq__root {
+  vertical-align: baseline;
+  line-height: inherit;
+  display: inline-block;
+}
+
+.MathRender-module__1683Gq__row {
+  align-items: baseline;
+  display: inline-flex;
+}
+
+.MathRender-module__1683Gq__rowInner, .MathRender-module__1683Gq__item, .MathRender-module__1683Gq__caretAnchor {
+  align-items: baseline;
+  display: inline-flex;
+  position: relative;
+}
+
+.MathRender-module__1683Gq__symbol {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.MathRender-module__1683Gq__digit {
+  letter-spacing: 0;
+}
+
+.MathRender-module__1683Gq__operator {
+  margin: 0 .16em;
+}
+
+.MathRender-module__1683Gq__caretPlaceholder {
+  color: #0000;
+  border-left: 1px solid;
+  margin-left: -1px;
+  font-size: 0;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  display: inline;
+}
+
+@keyframes MathRender-module__1683Gq__mq-caret-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+
+  50.01%, 100% {
+    opacity: 0;
+  }
+}
+
+.MathRender-module__1683Gq__fraction {
+  text-align: center;
+  padding: 0 .2em;
+  display: inline-block;
+  transform: translateY(-.12em);
+}
+
+.MathRender-module__1683Gq__numerator, .MathRender-module__1683Gq__denominator {
+  display: block;
+}
+
+.MathRender-module__1683Gq__denominator {
+  position: relative;
+}
+
+.MathRender-module__1683Gq__denominator:before {
+  content: "";
+  background: currentColor;
+  height: .5px;
+  position: absolute;
+  top: -.08em;
+  left: 0;
+  right: 0;
+}
+
+.MathRender-module__1683Gq__exponent, .MathRender-module__1683Gq__expBase {
+  align-items: baseline;
+  display: inline-flex;
+}
+
+.MathRender-module__1683Gq__expRaised {
+  align-items: baseline;
+  margin-left: .05em;
+  display: inline-flex;
+  transform: translateY(-.35em);
+}
+
+.MathRender-module__1683Gq__caretAbs {
+  width: 1px;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -1px;
+}
+
+.MathRender-module__1683Gq__caretStart {
+  width: 1px;
+  animation: 1s step-start infinite MathRender-module__1683Gq__mq-caret-blink;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+
+/* [project]/components/mathview/MathEditor.module.css [app-client] (css) */
+.MathEditor-module___d-iqW__container {
+  cursor: text;
+  user-select: none;
+  vertical-align: baseline;
+  white-space: nowrap;
+  width: auto;
+  min-width: 100%;
+  display: inline-block;
+  overflow: visible;
+}
+
+
+/*# sourceMappingURL=components_5fcf446b._.css.map*/

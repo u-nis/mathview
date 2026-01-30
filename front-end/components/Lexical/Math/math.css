@@ -1,42 +1,170 @@
-/* MathLexical math styling to mirror MathView */
+/* MathLexical math styling - LaTeX-like */
 
-/* Root expression container */
+/* ===== ROOT EXPRESSION ===== */
 [data-lexical-math="expression"] {
   display: inline-block;
-  vertical-align: baseline;
-  line-height: inherit;
+  line-height: 1;
+  vertical-align: top;
+  font-family: "Times New Roman", "STIX Two Math", serif;
 }
 
-/* Row layout */
+/* ===== ROW ===== */
 [data-lexical-math="row"] {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline-block;
+  min-height: 1em;
+  min-width: 0.5em;
 }
 
-/* Fraction layout */
-[data-lexical-math="fraction"] {
-  display: inline-block;
-  text-align: center;
-  transform: translateY(-0.12em);
+/* Root row: top-align so it does not move up when height changes (e.g. nesting denominator) */
+[data-lexical-math="expression"] > [data-lexical-math="row"] {
+  vertical-align: top;
+}
+
+[data-lexical-math="row"].auto-brackets-dismissed::before,
+[data-lexical-math="row"].auto-brackets-dismissed::after {
+  content: none !important;
+  border: none !important;
+}
+
+/* ===== NUMBER & OPERATOR ===== */
+[data-lexical-math="number"],
+[data-lexical-math="operator"] {
+  display: inline;
+  vertical-align: baseline;
+  white-space: pre;
+}
+
+[data-lexical-math="operator"] {
   padding: 0 0.2em;
 }
 
-[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child {
-  display: block;
+[data-lexical-math="operator"][data-operator="+"],
+[data-lexical-math="operator"][data-operator="-"],
+[data-lexical-math="operator"][data-operator="="] {
+  padding: 0 0.22em;
 }
 
+[data-lexical-math="operator"][data-operator="*"] {
+  padding: 0 0.18em;
+}
+
+/* ===== FRACTION ===== */
+[data-lexical-math="fraction"] {
+  display: inline-block;
+}
+
+[data-lexical-math="fraction"][data-math-level="0"] {
+  font-size: 0.8em;
+  vertical-align: -0.55em;
+  padding: 0 0.15em;
+}
+
+[data-lexical-math="fraction"][data-math-level="1"] { font-size: 1.0em; }
+[data-lexical-math="fraction"][data-math-level="2"] { font-size: 0.8em; }
+[data-lexical-math="fraction"][data-math-level="3"] { font-size: 0.8em; }
+
+/* Numerator and denominator rows */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child,
 [data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child {
-  display: block;
-  position: relative;
+  display: flex;
+  justify-content: center;
 }
 
-/* Fraction bar */
-[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child::before {
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child {
+  width: 100%;
+}
+
+/* Numerator bar (border-bottom) and padding by level */
+[data-lexical-math="fraction"][data-math-level="0"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.10em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 1.2em;
+}
+
+[data-lexical-math="fraction"][data-math-level="1"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.05em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 0.8em;
+}
+
+[data-lexical-math="fraction"][data-math-level="2"] > [data-lexical-math="row"]:first-child,
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.03em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 0.5em;
+}
+
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.015em;
+}
+
+/* Denominator padding by level */
+[data-lexical-math="fraction"][data-math-level="0"] > [data-lexical-math="row"]:last-child { padding-top: 0.10em; }
+[data-lexical-math="fraction"][data-math-level="1"] > [data-lexical-math="row"]:last-child { padding-top: 0.05em; }
+[data-lexical-math="fraction"][data-math-level="2"] > [data-lexical-math="row"]:last-child { padding-top: 0.03em; }
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:last-child { padding-top: 0.015em; }
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child:empty::before {
+  content: "\00a0";
+  display: inline-block;
+}
+
+/* Auto-brackets for rows with 2+ children */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:has(> :nth-child(2)) {
+  align-items: stretch;
+}
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:has(> :nth-child(2)) > * {
+  align-self: center;
+}
+
+/* Fraction selection - highlight + side indicator */
+[data-lexical-math="fraction"].math-selected-left,
+[data-lexical-math="fraction"].math-selected-right {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+}
+
+[data-lexical-math="fraction"].math-selected-left {
+  box-shadow: -2px 0 0 0 currentColor;
+}
+
+[data-lexical-math="fraction"].math-selected-right {
+  box-shadow: 2px 0 0 0 currentColor;
+}
+
+/* ===== GROUP (PARENTHESES) ===== */
+[data-lexical-math="group"] {
+  display: inline-flex;
+  align-items: stretch;
+  min-height: 1.2em;
+}
+
+[data-lexical-math="group"]:empty {
+  min-width: 0.5em;
+}
+
+[data-lexical-math="group"] > * {
+  align-self: center;
+}
+
+[data-lexical-math="group"]::before,
+[data-lexical-math="group"]::after {
   content: "";
-  position: absolute;
-  top: -0.08em;
-  left: 0;
-  right: 0;
-  height: max(1px, 0.06em);
-  background: currentColor;
+  width: 0.25em;
+  align-self: stretch;
+  border: max(1.5px, 0.08em) solid currentColor;
+  border-radius: 0.25em;
+}
+
+[data-lexical-math="group"]::before {
+  border-right: none;
+  border-radius: 0.25em 0 0 0.25em;
+  margin-right: 0.15em;
+}
+
+[data-lexical-math="group"]::after {
+  border-left: none;
+  border-radius: 0 0.25em 0.25em 0;
+  margin-left: 0.15em;
 }

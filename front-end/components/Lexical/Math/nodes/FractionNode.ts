@@ -1,5 +1,6 @@
 import type { NodeKey, SerializedElementNode, Spread } from "lexical";
 import { ElementNode } from "lexical";
+import { $createRowNode, RowNode } from "./RowNode";
 
 export type SerializedFractionNode = Spread<
   {
@@ -26,7 +27,7 @@ export class FractionNode extends ElementNode {
     return {
       ...super.exportJSON(),
       type: "math-fraction",
-      version: 1
+      version: 1,
     };
   }
 
@@ -34,10 +35,27 @@ export class FractionNode extends ElementNode {
     super(key);
   }
 
+  /** Get the numerator RowNode (first child) */
+  get numerator(): RowNode {
+    const child = this.getChildAtIndex(0);
+    if (!child) {
+      throw new Error("FractionNode has no numerator");
+    }
+    return child as RowNode;
+  }
+
+  /** Get the denominator RowNode (second child) */
+  get denominator(): RowNode {
+    const child = this.getChildAtIndex(1);
+    if (!child) {
+      throw new Error("FractionNode has no denominator");
+    }
+    return child as RowNode;
+  }
+
   createDOM(): HTMLElement {
     const dom = document.createElement("span");
     dom.dataset.lexicalMath = "fraction";
-    // Styling handled via global CSS (see MathLexical/math.css)
     return dom;
   }
 
@@ -50,8 +68,13 @@ export class FractionNode extends ElementNode {
   }
 }
 
+/** Creates a FractionNode with numerator and denominator RowNodes */
 export function $createFractionNode(): FractionNode {
-  return new FractionNode();
+  const fraction = new FractionNode();
+  const numerator = $createRowNode();
+  const denominator = $createRowNode();
+  fraction.append(numerator, denominator);
+  return fraction;
 }
 
 export function $isFractionNode(node: unknown): node is FractionNode {

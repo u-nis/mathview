@@ -19,13 +19,15 @@ import { useEffect, useRef, useState } from "react";
 import RightRuler from "./Rulers/RightRuler";
 import LeftRuler from "./Rulers/LeftRuler";
 import { FontSizeProvider } from "./plugins/FontSizeContext";
-import { MathKeymapPlugin } from "../Math/plugins/MathNavigationPlugin";
-import { MathParserPlugin } from "../Math/plugins/MathParserPlugin";
+import { MathNavigationPlugin } from "../Math/plugins/MathNavigationPlugin";
+import { MathInputPlugin } from "../Math/plugins/MathInputPlugin";
 import { InsertMathPlugin } from "../Math/plugins/InsertMathPlugin";
+import { FractionAlignmentPlugin } from "../Math/plugins/FractionAlignmentPlugin";
 import "../Math/math.css";
 import { MathExpressionNode } from "../Math/nodes/MathExpressionNode";
 import { RowNode } from "../Math/nodes/RowNode";
 import { FractionNode } from "../Math/nodes/FractionNode";
+import { GroupNode } from "../Math/nodes/GroupNode";
 import { NumberNode } from "../Math/nodes/NumberNode";
 import { OperatorNode } from "../Math/nodes/OperatorNode";
 
@@ -68,8 +70,9 @@ export default function Editor() {
       BannerNode,
       MathExpressionNode,
       RowNode,
-      NumberNode,
       FractionNode,
+      GroupNode,
+      NumberNode,
       OperatorNode,
     ],
   };
@@ -105,9 +108,10 @@ export default function Editor() {
     <FontSizeProvider>
       <LexicalComposer initialConfig={initialConfig}>
         <FontSizeSyncPlugin />
-        <MathKeymapPlugin />
-        <MathParserPlugin />
+        <MathNavigationPlugin />
+        <MathInputPlugin />
         <InsertMathPlugin />
+        <FractionAlignmentPlugin />
 
         <div>
           <div
