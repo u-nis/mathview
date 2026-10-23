@@ -1,0 +1,264 @@
+/* MathLexical math styling - LaTeX-like */
+
+/* ===== ROOT EXPRESSION ===== */
+[data-lexical-math="expression"] {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: baseline;
+  font-family: "Times New Roman", "STIX Two Math", serif;
+}
+
+/* ===== ROW ===== */
+[data-lexical-math="row"] {
+  display: inline-block;
+  min-height: 1em;
+  min-width: 0.5em;
+}
+
+/* Root row baseline alignment - numbers/operators establish the baseline */
+[data-lexical-math="expression"] > [data-lexical-math="row"] {
+  vertical-align: baseline;
+}
+
+[data-lexical-math="row"].auto-brackets-dismissed::before,
+[data-lexical-math="row"].auto-brackets-dismissed::after {
+  content: none !important;
+  border: none !important;
+}
+
+/* ===== NUMBER & OPERATOR ===== */
+[data-lexical-math="number"],
+[data-lexical-math="operator"] {
+  display: inline;
+  vertical-align: baseline;
+  white-space: pre;
+}
+
+[data-lexical-math="operator"] {
+  padding: 0 0.2em;
+}
+
+[data-lexical-math="operator"][data-operator="+"],
+[data-lexical-math="operator"][data-operator="-"],
+[data-lexical-math="operator"][data-operator="="] {
+  padding: 0 0.22em;
+}
+
+[data-lexical-math="operator"][data-operator="*"] {
+  padding: 0 0.18em;
+}
+
+/* ===== FRACTION ===== */
+[data-lexical-math="fraction"] {
+  display: inline-block;
+}
+
+[data-lexical-math="fraction"][data-math-level="0"] {
+  font-size: 0.8em;
+  vertical-align: -0.55em;
+  padding: 0 0.15em;
+}
+
+[data-lexical-math="fraction"][data-math-level="1"] { font-size: 1.0em; }
+[data-lexical-math="fraction"][data-math-level="2"] { font-size: 0.8em; }
+[data-lexical-math="fraction"][data-math-level="3"] { font-size: 0.8em; }
+
+/* Numerator and denominator rows */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child,
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child {
+  display: flex;
+  justify-content: center;
+}
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child {
+  width: 100%;
+}
+
+/* Numerator bar (border-bottom) and padding by level */
+[data-lexical-math="fraction"][data-math-level="0"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.10em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 1.2em;
+}
+
+[data-lexical-math="fraction"][data-math-level="1"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.05em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 0.8em;
+}
+
+[data-lexical-math="fraction"][data-math-level="2"] > [data-lexical-math="row"]:first-child,
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.03em;
+  border-bottom: 0.06em solid currentColor;
+  min-width: 0.5em;
+}
+
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:first-child {
+  padding-bottom: 0.015em;
+}
+
+/* Denominator padding by level */
+[data-lexical-math="fraction"][data-math-level="0"] > [data-lexical-math="row"]:last-child { padding-top: 0.10em; }
+[data-lexical-math="fraction"][data-math-level="1"] > [data-lexical-math="row"]:last-child { padding-top: 0.05em; }
+[data-lexical-math="fraction"][data-math-level="2"] > [data-lexical-math="row"]:last-child { padding-top: 0.03em; }
+[data-lexical-math="fraction"][data-math-level="3"] > [data-lexical-math="row"]:last-child { padding-top: 0.015em; }
+
+/* Empty numerator placeholder */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:first-child:empty::before {
+  content: "\00a0";
+  display: inline-block;
+}
+
+/* Empty denominator placeholder */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:last-child:empty::before {
+  content: "\00a0";
+  display: inline-block;
+}
+
+/* Auto-brackets for rows with 2+ children */
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:has(> :nth-child(2)) {
+  align-items: stretch;
+}
+
+[data-lexical-math="fraction"] > [data-lexical-math="row"]:has(> :nth-child(2)) > * {
+  align-self: center;
+}
+
+/* Blinking cursor animation */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Selection - highlight + side indicator (fractions, exponents, and expressions) */
+[data-lexical-math="fraction"].math-selected-left,
+[data-lexical-math="fraction"].math-selected-right,
+[data-lexical-math="exponent"].math-selected-left,
+[data-lexical-math="exponent"].math-selected-right,
+[data-lexical-math="expression"].math-selected-left,
+[data-lexical-math="expression"].math-selected-right {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+  position: relative;
+}
+
+[data-lexical-math="fraction"].math-selected-left::before,
+[data-lexical-math="exponent"].math-selected-left::before,
+[data-lexical-math="expression"].math-selected-left::before,
+[data-lexical-math="fraction"].math-selected-right::after,
+[data-lexical-math="exponent"].math-selected-right::after,
+[data-lexical-math="expression"].math-selected-right::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: currentColor;
+  animation: cursor-blink 1s step-end infinite;
+}
+
+[data-lexical-math="fraction"].math-selected-left::before,
+[data-lexical-math="exponent"].math-selected-left::before,
+[data-lexical-math="expression"].math-selected-left::before {
+  left: -1px;
+}
+
+[data-lexical-math="fraction"].math-selected-right::after,
+[data-lexical-math="exponent"].math-selected-right::after,
+[data-lexical-math="expression"].math-selected-right::after {
+  right: -1px;
+}
+
+/* ===== EXPONENT ===== */
+[data-lexical-math="exponent"] {
+  display: inline-flex;
+  align-items: flex-start;
+  vertical-align: baseline;
+}
+
+/* Base - normal size, establishes baseline */
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:first-child {
+  align-self: baseline;
+}
+
+/* Exponent - superscript */
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child {
+  font-size: 0.7em;
+  align-self: flex-start;
+  margin-top: -0.3em;
+  min-width: 0.4em;
+  min-height: 0.7em;
+}
+
+/* Force exponent text content to inherit the row's relative font-size,
+   ignoring any inline styles from font-size plugins.
+   This ensures exponents always stay proportionally smaller than the base. */
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="number"],
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="operator"] {
+  font-size: inherit !important;
+}
+
+/* Empty exponent placeholder */
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child:empty::before {
+  content: "\00a0";
+  display: inline-block;
+}
+
+/* ===== GROUP (PARENTHESES) ===== */
+[data-lexical-math="group"] {
+  display: inline-flex;
+  align-items: stretch;
+  min-height: 1.2em;
+}
+
+[data-lexical-math="group"]:empty {
+  min-width: 0.5em;
+}
+
+[data-lexical-math="group"] > * {
+  align-self: center;
+}
+
+[data-lexical-math="group"]::before,
+[data-lexical-math="group"]::after {
+  content: "";
+  width: 0.25em;
+  align-self: stretch;
+  border: max(1.5px, 0.08em) solid currentColor;
+  border-radius: 0.25em;
+}
+
+[data-lexical-math="group"]::before {
+  border-right: none;
+  border-radius: 0.25em 0 0 0.25em;
+  margin-right: 0.15em;
+}
+
+[data-lexical-math="group"]::after {
+  border-left: none;
+  border-radius: 0 0.25em 0.25em 0;
+  margin-left: 0.15em;
+}
+
+/* Exported bracket elements (used in HTML export since ::before/::after don't export) */
+[data-lexical-math="group-bracket-left"],
+[data-lexical-math="group-bracket-right"] {
+  display: inline-block;
+  width: 0.25em;
+  align-self: stretch;
+  border: max(1.5px, 0.08em) solid currentColor;
+  border-radius: 0.25em;
+}
+
+[data-lexical-math="group-bracket-left"] {
+  border-right: none;
+  border-radius: 0.25em 0 0 0.25em;
+  margin-right: 0.15em;
+}
+
+[data-lexical-math="group-bracket-right"] {
+  border-left: none;
+  border-radius: 0 0.25em 0.25em 0;
+  margin-left: 0.15em;
+}

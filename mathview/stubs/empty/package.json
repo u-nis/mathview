@@ -1,0 +1,6 @@
+{
+  "name": "empty-stub",
+  "version": "0.0.0",
+  "description": "Placeholder for @napi-rs/canvas (pdfjs-dist's Node-only optional dep; unused in the browser)",
+  "main": "index.js"
+}

@@ -1,0 +1,40 @@
+.exportStatus {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1200;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px 13px;
+  color: #111;
+  background: #fff;
+  border: 1px solid #111;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.24);
+  font: 13px/1.35 Arial, Helvetica, sans-serif;
+}
+
+.progressTrack {
+  height: 4px;
+  margin-top: 11px;
+  overflow: hidden;
+  background: #e5e5e5;
+}
+
+.progressIndicator {
+  width: 34%;
+  height: 100%;
+  background: #111;
+  animation: exportProgress 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes exportProgress {
+  from { transform: translateX(-25%); }
+  to { transform: translateX(220%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressIndicator {
+    width: 56%;
+    animation: none;
+    transform: none;
+  }
+}

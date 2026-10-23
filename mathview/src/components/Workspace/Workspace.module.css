@@ -1,0 +1,319 @@
+/* ---------- layout ---------- */
+.workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.canvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f4f4f4;
+}
+
+.plane {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  background-color: #f4f4f4;
+  background-image:
+    linear-gradient(to right, #dcdcdc 1px, transparent 1px),
+    linear-gradient(to bottom, #dcdcdc 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dropHover .plane {
+  background-color: #eaf1ff;
+}
+
+/* While dragging/resizing: no text selection, consistent cursor */
+.cursor_move, .cursor_move * { cursor: grabbing !important; user-select: none !important; }
+.cursor_ew, .cursor_ew * { cursor: ew-resize !important; user-select: none !important; }
+.cursor_ns, .cursor_ns * { cursor: ns-resize !important; user-select: none !important; }
+.cursor_nwse, .cursor_nwse * { cursor: nwse-resize !important; user-select: none !important; }
+.cursor_nesw, .cursor_nesw * { cursor: nesw-resize !important; user-select: none !important; }
+
+/* ---------- sidebars + vertical tabs ---------- */
+.sidebar {
+  flex: 0 0 32px;
+  width: 32px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sidebarLeft { border-right: 1px solid #000; }
+.sidebarRight { border-left: 1px solid #000; }
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0 6px;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+.tab:hover { background: #f2f2f2; }
+
+.tabActive,
+.tabActive:hover {
+  background: #d9d9d9;
+  color: #000;
+}
+
+.tabMinimized .tabLabel { font-style: italic; }
+
+.tabLabel {
+  writing-mode: vertical-rl;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  max-height: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabClose {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.tabClose:hover { opacity: 1; background: #000; color: #fff; }
+
+.addTab {
+  flex-shrink: 0;
+  height: 30px;
+  border: none;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #000;
+}
+.addTab:hover { background: #000; color: #fff; }
+
+/* ---------- windows ---------- */
+.window {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.handle {
+  position: absolute;
+  z-index: 5;
+  touch-action: none;
+}
+.handle_e { top: 0; bottom: 0; right: -6px; width: 10px; cursor: ew-resize; }
+.handle_w { top: 0; bottom: 0; left: -6px; width: 10px; cursor: ew-resize; }
+.handle_s { left: 0; right: 0; bottom: -6px; height: 10px; cursor: ns-resize; }
+.handle_se { right: -7px; bottom: -7px; width: 16px; height: 16px; cursor: nwse-resize; z-index: 6; }
+.handle_sw { left: -7px; bottom: -7px; width: 16px; height: 16px; cursor: nesw-resize; z-index: 6; }
+
+.handle_e::after,
+.handle_w::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 4px;
+  height: 48px;
+  margin-top: -24px;
+  border-radius: 2px;
+  background: #000;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.handle_e:hover::after,
+.handle_w:hover::after { opacity: 0.6; }
+
+/* editor window */
+.editorWindow { display: flex; flex-direction: column; }
+
+.editorGrip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #000;
+  border-bottom: none;
+  margin: 0 -1px; /* line up with the editor frame's outline */
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Classic Mac OS title bar: thin pinstripes either side of the title. */
+.gripDots {
+  flex: 1 1 auto;
+  min-width: 12px;
+  height: 9px;
+  background: repeating-linear-gradient(to bottom, #c2c2c2 0 1px, transparent 1px 2px);
+}
+.window:not(.windowActive) .gripDots { opacity: 0.45; }
+
+.gripTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.window:not(.windowActive) .gripTitle { color: #888; }
+
+.gripTitleInput {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 13px;
+  padding: 0 4px;
+  border: 1px solid #000;
+  border-radius: 0;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  text-align: center;
+  color: #000;
+  background: #fff;
+  outline: none;
+  cursor: text;
+}
+
+.editorScaleBox { position: relative; }
+
+.editorInner {
+  width: max-content;
+  transform-origin: 0 0;
+}
+
+/* image / pdf preview panel */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.panelHeader {
+  flex: 0 0 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 0 8px;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.panelTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panelTools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+}
+.panelTools button {
+  min-width: 18px;
+  height: 14px;
+  padding: 0 3px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: #000;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.panelTools button:hover { border-color: #000; }
+.panelTools .zoomLabel { font-size: 10px; min-width: 38px; font-variant-numeric: tabular-nums; }
+.panelTools .minimizeBtn { margin-left: 2px; font-size: 10px; }
+.window:not(.windowActive) .panelTitle { color: #888; }
+
+.panelBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
+
+.panelContent {
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+.previewImage {
+  display: block;
+  max-width: none;
+  height: auto;
+  user-select: none;
+}
+
+.pdfPages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pdfPage {
+  position: relative;
+  background: #fff;
+  box-shadow: 0 0 0 1px #d6d6d6;
+}
+.pdfPage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.previewMessage {
+  padding: 24px 8px;
+  font-size: 13px;
+  color: #777;
+  text-align: center;
+}
+
+.windowActive { z-index: 1; }
