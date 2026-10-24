@@ -19,6 +19,8 @@ interface PreviewPanelProps {
   onZoom: (zoom: number) => void;
   onScroll: (fx: number, fy: number) => void;
   onMinimize: () => void;
+  onClose: () => void;
+  onToggleFill: () => void;
   onFocus: () => void;
 }
 
@@ -32,6 +34,8 @@ export default function PreviewPanel({
   onZoom,
   onScroll,
   onMinimize,
+  onClose,
+  onToggleFill,
   onFocus,
 }: PreviewPanelProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -161,11 +165,25 @@ export default function PreviewPanel({
       style={{ left: panel.x, top: panel.y, width: panel.w, height: panel.h }}
       onPointerDownCapture={onFocus}
     >
-      <div className={styles.panelHeader} onPointerDown={onDragStart} title="Drag to move">
+      <div className={styles.panelHeader} onPointerDown={onDragStart} onDoubleClick={onToggleFill}>
+        {/* Classic Mac window boxes on the left, zoom on the right; both sides share
+            one width so the title stays centred. */}
+        <div className={`${styles.panelSide} ${styles.windowBoxes}`} onPointerDown={(e) => e.stopPropagation()}>
+          <button type="button" className={`${styles.windowBox} ${styles.closeBox}`} onClick={onClose} title="Close" aria-label="Close" />
+          <button type="button" className={`${styles.windowBox} ${styles.shadeBox}`} onClick={onMinimize} title="Minimize" aria-label="Minimize" />
+          <button
+            type="button"
+            className={`${styles.windowBox} ${styles.fillBox} ${panel.restore ? styles.fillBoxOn : ""}`}
+            onClick={onToggleFill}
+            title={panel.restore ? "Restore width" : "Fill width"}
+            aria-label={panel.restore ? "Restore width" : "Fill width"}
+            aria-pressed={!!panel.restore}
+          />
+        </div>
         <span className={styles.gripDots} />
-        <span className={styles.panelTitle}>{panel.name}</span>
+        <span className={styles.panelTitle} title={panel.name}>{panel.name}</span>
         <span className={styles.gripDots} />
-        <div className={styles.panelTools} onPointerDown={(e) => e.stopPropagation()}>
+        <div className={`${styles.panelSide} ${styles.panelTools}`} onPointerDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
           <button type="button" onClick={() => zoomBy(1 / 1.2)} title="Zoom out" aria-label="Zoom out">
             −
           </button>
@@ -179,15 +197,6 @@ export default function PreviewPanel({
           </button>
           <button type="button" onClick={() => zoomBy(1.2)} title="Zoom in" aria-label="Zoom in">
             +
-          </button>
-          <button
-            type="button"
-            className={styles.minimizeBtn}
-            onClick={onMinimize}
-            title="Minimize"
-            aria-label="Minimize"
-          >
-            _
           </button>
         </div>
       </div>

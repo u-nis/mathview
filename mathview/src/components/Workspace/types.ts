@@ -10,6 +10,8 @@ export interface PanelState {
   h: number;
   zoom: number;
   open: boolean;
+  /** Rect to return to when "fill width" is toggled off. */
+  restore?: { x: number; w: number };
   /** Scroll position as a fraction of content size, so it survives zoom changes. */
   scrollX?: number;
   scrollY?: number;

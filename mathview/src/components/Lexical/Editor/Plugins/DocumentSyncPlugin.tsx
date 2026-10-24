@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $createParagraphNode, $getRoot, CLEAR_HISTORY_COMMAND } from "lexical";
 import { useDocument } from "@/components/Document/DocumentProvider";
+import { $repairMathRows } from "@/components/Lexical/Math/utils/repairRows";
 
 const AUTOSAVE_DELAY = 400;
 const LOAD_TAG = "mathview-load";
@@ -54,6 +55,7 @@ export function DocumentSyncPlugin() {
       try {
         const state = editor.parseEditorState(content as string);
         editor.setEditorState(state, { tag: LOAD_TAG });
+        editor.update(() => $repairMathRows(), { tag: LOAD_TAG, discrete: true });
         loaded = true;
       } catch (error) {
         console.error("Failed to load document content:", error);

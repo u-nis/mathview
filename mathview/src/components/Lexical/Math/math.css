@@ -28,7 +28,8 @@
 
 /* ===== NUMBER & OPERATOR ===== */
 [data-lexical-math="number"],
-[data-lexical-math="operator"] {
+[data-lexical-math="operator"],
+[data-lexical-math="variable"] {
   display: inline;
   vertical-align: baseline;
   white-space: pre;
@@ -36,6 +37,12 @@
 
 [data-lexical-math="operator"] {
   padding: 0 0.2em;
+}
+
+/* Variables are italic like LaTeX; a hair of right space keeps "xy" from touching */
+[data-lexical-math="variable"] {
+  font-style: italic;
+  padding-right: 0.04em;
 }
 
 [data-lexical-math="operator"][data-operator="+"],
@@ -195,7 +202,8 @@
    ignoring any inline styles from font-size plugins.
    This ensures exponents always stay proportionally smaller than the base. */
 [data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="number"],
-[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="operator"] {
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="operator"],
+[data-lexical-math="exponent"] > [data-lexical-math="row"]:last-child [data-lexical-math="variable"] {
   font-size: inherit !important;
 }
 
@@ -210,6 +218,8 @@
   display: inline-flex;
   align-items: stretch;
   min-height: 1.2em;
+  /* centre tall groups (e.g. around a fraction) on the surrounding text */
+  vertical-align: middle;
 }
 
 [data-lexical-math="group"]:empty {
@@ -220,45 +230,36 @@
   align-self: center;
 }
 
+/* Parentheses drawn as arcs so they stretch with whatever they wrap
+   (fractions, exponents) instead of staying one line tall. */
 [data-lexical-math="group"]::before,
-[data-lexical-math="group"]::after {
+[data-lexical-math="group"]::after,
+[data-lexical-math="group-bracket-left"],
+[data-lexical-math="group-bracket-right"] {
   content: "";
-  width: 0.25em;
+  flex: 0 0 auto;
+  width: 0.28em;
+  min-height: 1em;
   align-self: stretch;
-  border: max(1.5px, 0.08em) solid currentColor;
-  border-radius: 0.25em;
+  box-sizing: border-box;
+  border: 0 solid currentColor;
 }
 
-[data-lexical-math="group"]::before {
-  border-right: none;
-  border-radius: 0.25em 0 0 0.25em;
-  margin-right: 0.15em;
+[data-lexical-math="group"]::before,
+[data-lexical-math="group-bracket-left"] {
+  border-left-width: max(1.2px, 0.065em);
+  border-radius: 100% 0 0 100% / 50% 0 0 50%;
+  margin: 0.06em 0.08em 0.06em 0.06em;
 }
 
-[data-lexical-math="group"]::after {
-  border-left: none;
-  border-radius: 0 0.25em 0.25em 0;
-  margin-left: 0.15em;
+[data-lexical-math="group"]::after,
+[data-lexical-math="group-bracket-right"] {
+  border-right-width: max(1.2px, 0.065em);
+  border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+  margin: 0.06em 0.06em 0.06em 0.08em;
 }
 
-/* Exported bracket elements (used in HTML export since ::before/::after don't export) */
 [data-lexical-math="group-bracket-left"],
 [data-lexical-math="group-bracket-right"] {
   display: inline-block;
-  width: 0.25em;
-  align-self: stretch;
-  border: max(1.5px, 0.08em) solid currentColor;
-  border-radius: 0.25em;
-}
-
-[data-lexical-math="group-bracket-left"] {
-  border-right: none;
-  border-radius: 0.25em 0 0 0.25em;
-  margin-right: 0.15em;
-}
-
-[data-lexical-math="group-bracket-right"] {
-  border-left: none;
-  border-radius: 0 0.25em 0.25em 0;
-  margin-left: 0.15em;
 }

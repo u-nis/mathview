@@ -208,6 +208,21 @@
   cursor: text;
 }
 
+/* Full-size toolbar between the title bar and the scaled page. */
+.editorToolbar {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  border: 1px solid #000;
+  border-bottom-color: #cecece;
+  margin: 0 -1px;
+}
+.editorToolbar :global(.toolbar) {
+  width: 100%;
+  margin-left: 0;
+  border-bottom: none;
+}
+
 .editorScaleBox { position: relative; }
 
 .editorInner {
@@ -229,8 +244,8 @@
   height: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 4px 0 8px;
+  gap: 6px;
+  padding: 0 6px;
   border-bottom: 1px solid #000;
   background: #fff;
   cursor: grab;
@@ -249,11 +264,81 @@
   text-overflow: ellipsis;
 }
 
-.panelTools {
+/* Left (window boxes) and right (zoom) share one width so the title is centred. */
+.panelSide {
+  flex: 0 0 76px;
   display: flex;
   align-items: center;
-  gap: 2px;
   cursor: default;
+}
+
+.windowBoxes { justify-content: flex-start; gap: 5px; }
+
+/* Classic Mac OS window boxes: small outlined squares, glyph shown on hover. */
+.windowBox {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  cursor: pointer;
+}
+.windowBox::before,
+.windowBox::after {
+  content: "";
+  position: absolute;
+  background: #000;
+}
+.windowBox:active { background: #000; }
+.windowBox:active::before,
+.windowBox:active::after { background: #fff; border-color: #fff; }
+
+/* close: an × appears on hover */
+.closeBox::before,
+.closeBox::after {
+  left: 50%;
+  top: 1px;
+  bottom: 1px;
+  width: 1px;
+  margin-left: -0.5px;
+  opacity: 0;
+}
+.closeBox::before { transform: rotate(45deg); }
+.closeBox::after { transform: rotate(-45deg); }
+.closeBox:hover::before,
+.closeBox:hover::after { opacity: 1; }
+
+/* minimize (window shade): a bar across the middle */
+.shadeBox::before {
+  left: 1px;
+  right: 1px;
+  top: 50%;
+  height: 1px;
+  margin-top: -0.5px;
+}
+.shadeBox::after { display: none; }
+
+/* fill width (zoom box): a smaller box in the top-left corner */
+.fillBox::before {
+  left: 1px;
+  top: 1px;
+  width: 4px;
+  height: 4px;
+  background: transparent;
+  border: 1px solid #000;
+}
+.fillBox::after { display: none; }
+.fillBoxOn::before { width: 7px; height: 7px; left: 0; top: 0; }
+
+.window:not(.windowActive) .windowBox { border-color: #aaa; }
+.window:not(.windowActive) .fillBox::before { border-color: #aaa; }
+.window:not(.windowActive) .shadeBox::before { background: #aaa; }
+
+.panelTools {
+  justify-content: flex-end;
+  gap: 1px;
 }
 .panelTools button {
   min-width: 18px;
@@ -268,8 +353,7 @@
   cursor: pointer;
 }
 .panelTools button:hover { border-color: #000; }
-.panelTools .zoomLabel { font-size: 10px; min-width: 38px; font-variant-numeric: tabular-nums; }
-.panelTools .minimizeBtn { margin-left: 2px; font-size: 10px; }
+.panelTools .zoomLabel { font-size: 10px; min-width: 36px; font-variant-numeric: tabular-nums; }
 .window:not(.windowActive) .panelTitle { color: #888; }
 
 .panelBody {

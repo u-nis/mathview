@@ -22,9 +22,10 @@ const EDITOR_GRIP = 16;
 const MIN_EDITOR_SCALE = 0.2;
 const MIN_PANEL_W = 220;
 const MIN_PANEL_H = 160;
-const DEFAULT_NATURAL = { w: 1020, h: 1344 };
+const DEFAULT_NATURAL = { w: 1020, h: 1344, chrome: 0 };
 
-type Natural = { w: number; h: number };
+/** Unscaled page size, plus the unscaled toolbar height above it ("chrome"). */
+type Natural = { w: number; h: number; chrome: number };
 
 type Interaction =
   | { type: "move"; id: string; sx: number; sy: number; orig: Rect }
@@ -32,7 +33,7 @@ type Interaction =
   | { type: "resize-panel"; id: string; edge: ResizeEdge; sx: number; sy: number; orig: Rect };
 
 function editorRect(e: EditorWindowState, n: Natural): Rect {
-  return { x: e.x, y: e.y, w: n.w * e.scale, h: EDITOR_GRIP + n.h * e.scale };
+  return { x: e.x, y: e.y, w: n.w * e.scale, h: EDITOR_GRIP + n.chrome + n.h * e.scale };
 }
 
 function isPdf(file: File) {
@@ -106,6 +107,7 @@ export default function Workspace() {
   const [interacting, setInteracting] = useState<null | "move" | "ew" | "ns" | "nwse" | "nesw">(null);
   const [dropHover, setDropHover] = useState(false);
   const [titleDraft, setTitleDraft] = useState<string | null>(null);
+  const [toolbarHost, setToolbarHost] = useState<HTMLDivElement | null>(null);
 
   const wsRef = useRef(ws);
   wsRef.current = ws;
@@ -159,7 +161,7 @@ export default function Workspace() {
       const w = el.offsetWidth;
       const h = el.offsetHeight;
       if (w > 0 && h > 0 && (Math.abs(w - naturalRef.current.w) > 0.5 || Math.abs(h - naturalRef.current.h) > 0.5)) {
-        setNatural({ w, h });
+        setNatural((prev) => ({ ...prev, w, h }));
       }
     };
     update();
@@ -167,6 +169,19 @@ export default function Workspace() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [editorMounted]);
+
+  // Measure the unscaled toolbar that sits above the page.
+  useEffect(() => {
+    if (!toolbarHost) return;
+    const update = () => {
+      const chrome = toolbarHost.offsetHeight;
+      if (Math.abs(chrome - naturalRef.current.chrome) > 0.5) setNatural((prev) => ({ ...prev, chrome }));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(toolbarHost);
+    return () => ro.disconnect();
+  }, [toolbarHost]);
 
   // ---- helpers -----------------------------------------------------------
   const othersFor = useCallback((id: string, state: WorkspaceState): Rect[] => {
@@ -328,6 +343,7 @@ export default function Workspace() {
       id === "editor" ? editorRect(state.editor, naturalRef.current) : state.panels.find((p) => p.id === id);
     if (!orig) return;
     setActiveWin(id);
+    if (id !== "editor") updatePanel(id, { restore: undefined });
     beginInteraction(e, { type: "move", id, sx: e.clientX, sy: e.clientY, orig: { ...orig } }, "move");
   };
 
@@ -346,6 +362,7 @@ export default function Workspace() {
     const p = wsRef.current?.panels.find((q) => q.id === id);
     if (!p) return;
     setActiveWin(id);
+    updatePanel(id, { restore: undefined });
     beginInteraction(
       e,
       { type: "resize-panel", id, edge, sx: e.clientX, sy: e.clientY, orig: { x: p.x, y: p.y, w: p.w, h: p.h } },
@@ -413,6 +430,34 @@ export default function Workspace() {
     let r = clampToBounds({ x: p.x, y: p.y, w: Math.min(p.w, planeW - 2 * GAP), h: p.h }, planeW);
     if (collides(r, others)) r = findFreeSpot(r.w, r.h, others, planeW, viewH, MIN_PANEL_W, MIN_PANEL_H);
     updatePanel(id, { ...r, open: true });
+    setActiveWin(id);
+  };
+
+  /** Stretch a panel across all free horizontal space in its band, or undo that. */
+  const toggleFillPanel = (id: string) => {
+    const state = wsRef.current;
+    const p = state?.panels.find((q) => q.id === id);
+    if (!state || !p) return;
+    const others = othersFor(id, state);
+
+    if (p.restore) {
+      const back = { x: p.restore.x, y: p.y, w: p.restore.w, h: p.h };
+      updatePanel(id, collides(back, others) ? { restore: undefined } : { ...back, restore: undefined });
+      return;
+    }
+
+    // Windows sharing this panel's rows limit how far it can stretch.
+    const band = others.filter((o) => o.y < p.y + p.h + GAP && p.y < o.y + o.h + GAP);
+    const mid = p.x + p.w / 2;
+    let left = GAP;
+    let right = planeW - GAP;
+    for (const o of band) {
+      if (o.x + o.w / 2 <= mid) left = Math.max(left, o.x + o.w + GAP);
+      else right = Math.min(right, o.x - GAP);
+    }
+    const w = right - left;
+    if (w <= p.w + 1) return; // already as wide as it can be
+    updatePanel(id, { x: left, w, restore: { x: p.x, w: p.w } });
     setActiveWin(id);
   };
 
@@ -557,16 +602,19 @@ export default function Workspace() {
                 )}
                 <span className={styles.gripDots} />
               </div>
+              {/* Toolbar renders here at full size (portaled from the editor) so it
+                  stays readable however small the page is scaled. */}
+              <div ref={setToolbarHost} className={styles.editorToolbar} />
               <div
                 className={styles.editorScaleBox}
-                style={{ width: er.w, height: er.h - EDITOR_GRIP }}
+                style={{ width: er.w, height: er.h - EDITOR_GRIP - natural.chrome }}
               >
                 <div
                   ref={editorInnerRef}
                   className={styles.editorInner}
                   style={{ transform: `scale(${ws.editor.scale})` }}
                 >
-                  <Editor embedded />
+                  <Editor embedded toolbarHost={toolbarHost} />
                 </div>
               </div>
               {(["e", "w", "se", "sw"] as ResizeEdge[]).map((edge) => (
@@ -591,6 +639,8 @@ export default function Workspace() {
                 onZoom={(zoom) => updatePanel(p.id, { zoom })}
                 onScroll={(scrollX, scrollY) => updatePanel(p.id, { scrollX, scrollY })}
                 onMinimize={() => updatePanel(p.id, { open: false })}
+                onClose={() => closePanel(p.id)}
+                onToggleFill={() => toggleFillPanel(p.id)}
                 onFocus={() => setActiveWin(p.id)}
               />
             ))}

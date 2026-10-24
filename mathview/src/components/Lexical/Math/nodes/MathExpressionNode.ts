@@ -21,8 +21,8 @@ export class MathExpressionNode extends ElementNode {
   }
 
   static importJSON(serializedNode: SerializedMathExpressionNode): MathExpressionNode {
-    const node = $createMathExpressionNode();
-    return node;
+    // Bare node: Lexical appends the saved root row itself.
+    return new MathExpressionNode();
   }
 
   exportJSON(): SerializedMathExpressionNode {

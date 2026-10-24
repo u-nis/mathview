@@ -9,17 +9,22 @@ const DISPLAY_MAP: Record<string, string> = {
 
 export type SerializedOperatorNode = Spread<
   {
-    type: "math-operator";
+    type: "math-operator" | "math-variable";
   },
   SerializedTextNode
 >;
 
 export class OperatorNode extends TextNode {
   constructor(text: string, key?: NodeKey) {
-    if (!/^[+\-*=()]$/.test(text)) {
-      throw new Error("OperatorNode can only contain operators (+, -, *, =, (, ))");
+    // Subclasses (VariableNode) define their own allowed characters.
+    if (!(new.target as typeof OperatorNode).isValidText(text)) {
+      throw new Error(`${new.target.name} cannot contain "${text}"`);
     }
     super(text, key);
+  }
+
+  static isValidText(text: string): boolean {
+    return /^[+\-*=()]$/.test(text);
   }
 
   static getType(): string {
@@ -50,8 +55,8 @@ export class OperatorNode extends TextNode {
   }
   // Restrict text updates to operators
   setTextContent(text: string): this {
-    if (!/^[+\-*=()]$/.test(text)) {
-      throw new Error("OperatorNode can only contain operators (+, -, *, =, (, ))");
+    if (!(this.constructor as typeof OperatorNode).isValidText(text)) {
+      throw new Error(`${this.constructor.name} cannot contain "${text}"`);
     }
     return super.setTextContent(text);
   }

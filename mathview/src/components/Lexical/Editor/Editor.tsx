@@ -16,6 +16,7 @@ import { TreeView } from "@lexical/react/LexicalTreeView";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import TopRuler from "./Rulers/TopRuler";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import RightRuler from "./Rulers/RightRuler";
 import LeftRuler from "./Rulers/LeftRuler";
 import { FontSizeProvider } from "./Plugins/FontSizeContext";
@@ -24,6 +25,7 @@ import { MathInputPlugin } from "../Math/plugins/MathInputPlugin";
 import { InsertMathPlugin } from "../Math/plugins/InsertMathPlugin";
 import { FractionAlignmentPlugin } from "../Math/plugins/FractionAlignmentPlugin";
 import { ExponentAlignmentPlugin } from "../Math/plugins/ExponentAlignmentPlugin";
+import { MathModeHintPlugin } from "../Math/plugins/MathModeHintPlugin";
 import { ExportPlugin } from "./Plugins/ExportPlugin";
 import { DocumentSyncPlugin } from "./Plugins/DocumentSyncPlugin";
 import "../Math/math.css";
@@ -34,6 +36,7 @@ import { ExponentNode } from "../Math/nodes/ExponentNode";
 import { GroupNode } from "../Math/nodes/GroupNode";
 import { NumberNode } from "../Math/nodes/NumberNode";
 import { OperatorNode } from "../Math/nodes/OperatorNode";
+import { VariableNode } from "../Math/nodes/VariableNode";
 
 const theme = {
   heading: {
@@ -65,9 +68,11 @@ function TreeViewWrapper() {
 interface EditorProps {
   /** Rendered inside the workspace window: no outer margins, no debug tree view. */
   embedded?: boolean;
+  /** When set, the toolbar is rendered into this element instead of above the page. */
+  toolbarHost?: HTMLElement | null;
 }
 
-export default function Editor({ embedded = false }: EditorProps = {}) {
+export default function Editor({ embedded = false, toolbarHost = null }: EditorProps = {}) {
   const initialConfig = {
     namespace: "MyEditor",
     theme,
@@ -84,6 +89,7 @@ export default function Editor({ embedded = false }: EditorProps = {}) {
       GroupNode,
       NumberNode,
       OperatorNode,
+      VariableNode,
     ],
   };
 
@@ -123,6 +129,7 @@ export default function Editor({ embedded = false }: EditorProps = {}) {
         <InsertMathPlugin />
         <FractionAlignmentPlugin />
         <ExponentAlignmentPlugin />
+        <MathModeHintPlugin />
         <ExportPlugin />
         <DocumentSyncPlugin />
 
@@ -135,7 +142,7 @@ export default function Editor({ embedded = false }: EditorProps = {}) {
             }}
           >
             <div className={styles["editor-container"]} ref={containerRef}>
-              <Toolbar />
+              {toolbarHost ? createPortal(<Toolbar />, toolbarHost) : <Toolbar />}
               <div>
                 <TopRuler
                   width={editorWidth}

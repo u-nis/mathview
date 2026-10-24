@@ -28,6 +28,8 @@ import {
   $createOperatorNode,
   $isOperatorNode,
 } from "../nodes/OperatorNode";
+import type { OperatorNode } from "../nodes/OperatorNode";
+import { $createVariableNode, $isVariableNode } from "../nodes/VariableNode";
 import {
   $createFractionNode,
   $isFractionNode,
@@ -42,7 +44,13 @@ import { $isMathExpressionNode } from "../nodes/MathExpressionNode";
 import { getSelectionSide, type SelectionSide } from "./MathNavigationPlugin";
 
 const DIGIT_REGEX = /^[0-9]$/;
-const OPERATOR_REGEX = /^[+\-*=()]$/;
+const VARIABLE_REGEX = /^[A-Za-z]$/;
+/** Single-character leaves typed into a row: operators and variables. */
+const ATOM_REGEX = /^[+\-*=()A-Za-z]$/;
+
+function $createAtomNode(char: string): OperatorNode {
+  return VARIABLE_REGEX.test(char) ? $createVariableNode(char) : $createOperatorNode(char);
+}
 const MAX_FRACTION_DEPTH = 4;
 
 // Track rows where auto-brackets have been dismissed
@@ -106,8 +114,8 @@ export function MathInputPlugin(): null {
             for (const char of text) {
               if (DIGIT_REGEX.test(char)) {
                 handleInputAtFraction(selectedFraction, $createNumberNode(char), side);
-              } else if (OPERATOR_REGEX.test(char)) {
-                handleInputAtFraction(selectedFraction, $createOperatorNode(char), side);
+              } else if (ATOM_REGEX.test(char)) {
+                handleInputAtFraction(selectedFraction, $createAtomNode(char), side);
               } else if (char === "/") {
                 handleFractionWrap(selectedFraction, side);
               }
@@ -122,8 +130,8 @@ export function MathInputPlugin(): null {
             for (const char of text) {
               if (DIGIT_REGEX.test(char)) {
                 handleInputAtFraction(selectedExponent, $createNumberNode(char), side);
-              } else if (OPERATOR_REGEX.test(char)) {
-                handleInputAtFraction(selectedExponent, $createOperatorNode(char), side);
+              } else if (ATOM_REGEX.test(char)) {
+                handleInputAtFraction(selectedExponent, $createAtomNode(char), side);
               } else if (char === "/") {
                 handleExponentFractionWrap(selectedExponent, side);
               } else if (char === "^") {
@@ -154,7 +162,7 @@ export function MathInputPlugin(): null {
           }
 
           // Handle operators
-          if (OPERATOR_REGEX.test(char)) {
+          if (ATOM_REGEX.test(char)) {
             handleOperatorInput(char, currentRow);
             continue;
           }
@@ -658,9 +666,9 @@ export function MathInputPlugin(): null {
           }
 
           // Handle operators
-          if (OPERATOR_REGEX.test(key)) {
+          if (ATOM_REGEX.test(key)) {
             event.preventDefault();
-            handleInputAtFraction(selectedFraction, $createOperatorNode(key), side);
+            handleInputAtFraction(selectedFraction, $createAtomNode(key), side);
             return true;
           }
 
@@ -693,9 +701,9 @@ export function MathInputPlugin(): null {
           }
 
           // Handle operators
-          if (OPERATOR_REGEX.test(key)) {
+          if (ATOM_REGEX.test(key)) {
             event.preventDefault();
-            handleInputAtFraction(selectedExponent, $createOperatorNode(key), side);
+            handleInputAtFraction(selectedExponent, $createAtomNode(key), side);
             return true;
           }
 
@@ -721,7 +729,27 @@ export function MathInputPlugin(): null {
       COMMAND_PRIORITY_CRITICAL
     );
 
+    // Lexical lets the browser type straight into a text node when it can
+    // (e.g. "x" right after "2"), which bypasses the handler above and makes the
+    // math leaf nodes reject the text. Inside math, always take the controlled path.
+    const onBeforeInput = (event: InputEvent) => {
+      if (event.inputType !== "insertText" || !event.data) return;
+      const inMath = editor.getEditorState().read(() => {
+        const selection = $getSelection();
+        return $isRangeSelection(selection) && isInsideMathExpression(selection.anchor.getNode());
+      });
+      if (!inMath) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, event.data);
+    };
+    const removeRootListener = editor.registerRootListener((root, prevRoot) => {
+      prevRoot?.removeEventListener("beforeinput", onBeforeInput, true);
+      root?.addEventListener("beforeinput", onBeforeInput, true);
+    });
+
     return () => {
+      removeRootListener();
       removeInsertTextCommand();
       removeUpdateListener();
       removeEnterCommand();
@@ -804,6 +832,9 @@ function tryConvertAutoBracketsToGroup(
   const childCount = currentRow.getChildrenSize();
   if (childCount < 2) return false;
 
+  // A bracket the user typed themselves takes priority: ")" closes an open "(".
+  if (hasUnmatchedBracket(currentRow, operator === ")" ? "(" : ")")) return false;
+
   // Check if we're at the right position
   const isAtStart = isAtRowStart(anchorNode, offset, currentRow);
   const isAtEnd = isAtRowEnd(anchorNode, offset, currentRow);
@@ -846,6 +877,20 @@ function tryConvertAutoBracketsToGroup(
   }
 
   return false;
+}
+
+/** Whether the row has an operator bracket of this kind with no partner yet. */
+function hasUnmatchedBracket(row: RowNode | GroupNode, bracket: "(" | ")"): boolean {
+  let depth = 0;
+  const children = row.getChildren();
+  const ordered = bracket === "(" ? children : [...children].reverse();
+  const partner = bracket === "(" ? ")" : "(";
+  for (const child of ordered) {
+    if (!$isOperatorNode(child)) continue;
+    if (child.__text === bracket) depth++;
+    else if (child.__text === partner && depth > 0) depth--;
+  }
+  return depth > 0;
 }
 
 /**
@@ -1094,7 +1139,7 @@ function handleOperatorInput(operator: string, currentRow: RowNode | GroupNode):
     if (converted) return;
   }
 
-  const operatorNode = $createOperatorNode(operator);
+  const operatorNode = $createAtomNode(operator);
 
   // If cursor is in a NumberNode, we need to split it or insert before/after
   if ($isNumberNode(anchorNode)) {
@@ -1134,12 +1179,11 @@ function handleOperatorInput(operator: string, currentRow: RowNode | GroupNode):
 
   // If we inserted a bracket, try to match brackets in the row
   if (operator === "(" || operator === ")") {
-    const wasMatched = matchBracketsInRow(currentRow);
-    
-    if (wasMatched) {
-      // The bracket operator was removed during grouping
-      // Find the newly created group and position cursor appropriately
-      // For now, just leave selection as-is (Lexical will handle it)
+    const group = matchBracketsInRow(currentRow);
+
+    if (group) {
+      // The bracket operators were replaced by a group; continue after it.
+      $selectAfter(group);
       return;
     }
   }
@@ -1156,8 +1200,9 @@ function handleOperatorInput(operator: string, currentRow: RowNode | GroupNode):
  * Handles nested brackets by processing innermost pairs first.
  * @returns true if any brackets were matched and grouped
  */
-function matchBracketsInRow(row: RowNode | GroupNode): boolean {
-  let anyMatched = false;
+/** Turns matched "(" … ")" operator pairs into GroupNodes; returns the last group made. */
+function matchBracketsInRow(row: RowNode | GroupNode): GroupNode | null {
+  let lastGroup: GroupNode | null = null;
   // Keep matching until no more pairs are found
   let foundMatch = true;
   
@@ -1202,14 +1247,25 @@ function matchBracketsInRow(row: RowNode | GroupNode): boolean {
           closeBracket.remove();
           
           foundMatch = true;
-          anyMatched = true;
+          lastGroup = groupNode;
           break; // Restart the loop to handle any remaining brackets
         }
       }
     }
   }
   
-  return anyMatched;
+  return lastGroup;
+}
+
+/** Put the caret right after a node inside its parent row/group. */
+function $selectAfter(node: LexicalNode): void {
+  const parent = node.getParent();
+  if (!parent) return;
+  const index = node.getIndexWithinParent() + 1;
+  const newSelection = $createRangeSelection();
+  newSelection.anchor.set(parent.getKey(), index, "element");
+  newSelection.focus.set(parent.getKey(), index, "element");
+  $setSelection(newSelection);
 }
 
 function handleFractionInput(currentRow: RowNode | GroupNode): void {
@@ -1264,6 +1320,10 @@ function handleFractionInput(currentRow: RowNode | GroupNode): void {
       $setSelection(newSelection);
       return;
     }
+  } else if ($isVariableNode(anchorNode)) {
+    // A variable is a term, like a number: "x/" makes x the numerator
+    nodeBeforeCursor = offset === 0 ? anchorNode.getPreviousSibling() : anchorNode;
+    insertionPoint = offset === 0 ? anchorNode : anchorNode.getNextSibling();
   } else if ($isOperatorNode(anchorNode)) {
     // Cursor is on an operator
     if (offset === 0) {
@@ -1289,7 +1349,7 @@ function handleFractionInput(currentRow: RowNode | GroupNode): void {
   }
 
   // If we found a node to use as numerator
-  if (nodeBeforeCursor && ($isNumberNode(nodeBeforeCursor) || $isFractionNode(nodeBeforeCursor) || $isGroupNode(nodeBeforeCursor))) {
+  if (nodeBeforeCursor && ($isNumberNode(nodeBeforeCursor) || $isVariableNode(nodeBeforeCursor) || $isFractionNode(nodeBeforeCursor) || $isGroupNode(nodeBeforeCursor))) {
     // Move it to the numerator
     nodeBeforeCursor.remove();
     fractionNode.numerator.append(nodeBeforeCursor);
@@ -1558,6 +1618,20 @@ function handleInputAtFraction(fraction: LexicalNode, newNode: LexicalNode, side
     fraction.insertAfter(newNode);
   }
 
+  // A bracket typed next to a fraction/exponent can close a pair: group it.
+  const parentRow = newNode.getParent();
+  if (
+    $isOperatorNode(newNode) &&
+    (newNode.__text === "(" || newNode.__text === ")") &&
+    ($isRowNode(parentRow) || $isGroupNode(parentRow))
+  ) {
+    const group = matchBracketsInRow(parentRow);
+    if (group) {
+      $selectAfter(group);
+      return;
+    }
+  }
+
   // Move cursor to the new node (at the end, so user can keep typing)
   const newSelection = $createRangeSelection();
   if ($isNumberNode(newNode) || $isOperatorNode(newNode)) {
@@ -1659,6 +1733,10 @@ function handleExponentInput(currentRow: RowNode | GroupNode): void {
       $setSelection(newSelection);
       return;
     }
+  } else if ($isVariableNode(anchorNode)) {
+    // A variable is a term, like a number: "x^" makes x the base
+    nodeBeforeCursor = offset === 0 ? anchorNode.getPreviousSibling() : anchorNode;
+    insertionPoint = offset === 0 ? anchorNode : anchorNode.getNextSibling();
   } else if ($isOperatorNode(anchorNode)) {
     // Cursor is on an operator - previous sibling becomes base
     nodeBeforeCursor = anchorNode.getPreviousSibling();
@@ -1677,7 +1755,7 @@ function handleExponentInput(currentRow: RowNode | GroupNode): void {
   }
 
   // If we found a node to use as base
-  if (nodeBeforeCursor && ($isNumberNode(nodeBeforeCursor) || $isFractionNode(nodeBeforeCursor) || $isGroupNode(nodeBeforeCursor) || $isExponentNode(nodeBeforeCursor))) {
+  if (nodeBeforeCursor && ($isNumberNode(nodeBeforeCursor) || $isVariableNode(nodeBeforeCursor) || $isFractionNode(nodeBeforeCursor) || $isGroupNode(nodeBeforeCursor) || $isExponentNode(nodeBeforeCursor))) {
     // Move it to the base
     nodeBeforeCursor.remove();
     exponentNode.base.append(nodeBeforeCursor);

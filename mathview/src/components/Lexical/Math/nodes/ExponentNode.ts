@@ -20,7 +20,8 @@ export class ExponentNode extends ElementNode {
   }
 
   static importJSON(serializedNode: SerializedExponentNode): ExponentNode {
-    return $createExponentNode();
+    // Bare node: Lexical appends the saved base/exponent rows itself.
+    return new ExponentNode();
   }
 
   exportJSON(): SerializedExponentNode {

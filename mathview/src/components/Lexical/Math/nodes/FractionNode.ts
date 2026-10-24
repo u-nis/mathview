@@ -20,7 +20,8 @@ export class FractionNode extends ElementNode {
   }
 
   static importJSON(serializedNode: SerializedFractionNode): FractionNode {
-    return $createFractionNode();
+    // Bare node: Lexical appends the saved numerator/denominator rows itself.
+    return new FractionNode();
   }
 
   exportJSON(): SerializedFractionNode {
